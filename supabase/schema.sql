@@ -232,6 +232,25 @@ create policy "dog-photos owner write" on storage.objects for insert with check 
   bucket_id = 'dog-photos' and auth.uid() is not null
 );
 
+-- ----- announcements (공지사항) ------------------------------------------
+create table if not exists public.announcements (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  body text not null,
+  category text not null default 'general'
+    check (category in ('general','event','notice','closure')),
+  pinned boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+alter table public.announcements enable row level security;
+
+drop policy if exists "announcements public read" on public.announcements;
+drop policy if exists "announcements admin all"  on public.announcements;
+create policy "announcements public read" on public.announcements for select using (true);
+create policy "announcements admin all"  on public.announcements for all
+  using (public.is_admin()) with check (public.is_admin());
+
 -- ============================================================================
 -- 출석 → 출석쿠폰 자동 발급 (10회마다)
 -- ============================================================================
