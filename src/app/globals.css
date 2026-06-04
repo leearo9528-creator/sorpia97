@@ -1,26 +1,140 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 들판 · 햇살 — 초록 + 노랑 팔레트 */
+  --background: #fbfaee;     /* 햇살 머금은 종이 톤 */
+  --surface: #ffffff;
+  --surface-2: #f4efd0;      /* 부드러운 레몬 크림 */
+  --foreground: #1c2a18;     /* 진한 풀잎 */
+  --foreground-soft: #44523d;
+  --foreground-mute: #7a8472;
+
+  --brand: #3a7a3f;          /* 들판의 짙은 초록 */
+  --brand-strong: #225028;
+  --brand-soft: #d8ecc4;     /* 연한 연두 */
+
+  --accent: #f0b429;         /* 따뜻한 머스타드 노랑 */
+  --accent-soft: #fce8a2;    /* 햇살 노랑 */
+  --accent-deep: #c08711;    /* 진한 노랑(아이콘 가독성) */
+
+  --ring: #e2dca8;
+  --line: #ece5b9;
+  --shadow: 0 1px 2px rgba(28,42,24,.04), 0 8px 24px -8px rgba(28,42,24,.12);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-ring: var(--ring);
+  --color-line: var(--line);
+  --font-sans: "Pretendard Variable", "Pretendard", -apple-system,
+    BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-body {
+html, body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS 안전 영역 보정용 패딩 */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+
+/* ---------- 버튼 ---------- */
+.btn,
+.btn-primary,
+.btn-outline,
+.btn-ghost,
+.btn-accent {
+  @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold
+         transition-all active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  min-height: 48px;  /* 터치 타겟 */
+}
+.btn-primary {
+  @apply bg-[var(--brand)] text-white;
+  box-shadow: 0 1px 0 rgba(255,255,255,.1) inset, 0 8px 18px -6px rgba(45,74,62,.45);
+}
+.btn-primary:hover { background: var(--brand-strong); }
+.btn-accent {
+  @apply bg-[var(--accent)] text-[var(--brand-strong)];
+  box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 8px 18px -6px rgba(240,180,41,.55);
+}
+.btn-outline {
+  @apply border bg-[var(--surface)] text-[var(--brand-strong)];
+  border-color: var(--line);
+}
+.btn-outline:hover { background: var(--surface-2); }
+.btn-ghost {
+  @apply text-[var(--brand-strong)];
+}
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-sm { @apply px-3 py-2 text-xs; min-height: 36px; }
+
+/* ---------- 카드/입력 ---------- */
+.card {
+  @apply rounded-3xl bg-[var(--surface)] p-5;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+.card-flat {
+  @apply rounded-3xl p-5;
+  background: var(--surface-2);
+}
+
+.input,
+.textarea {
+  @apply w-full rounded-2xl bg-[var(--surface)] px-4 py-3 text-base
+         placeholder:text-[var(--foreground-mute)]
+         focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40 focus:border-[var(--brand)];
+  border: 1px solid var(--line);
+  min-height: 48px;
+}
+.textarea { min-height: 120px; }
+.label {
+  @apply text-xs font-semibold uppercase tracking-wider text-[var(--foreground-soft)] mb-2 block;
+}
+
+/* ---------- 섹션/타입 ---------- */
+.section { @apply mx-auto max-w-3xl px-5; }
+.section-wide { @apply mx-auto max-w-6xl px-5; }
+.eyebrow {
+  @apply text-xs font-bold uppercase tracking-[0.18em] text-[var(--accent)];
+}
+.h-display {
+  @apply text-[34px] leading-[1.15] font-bold tracking-tight text-[var(--brand-strong)];
+  letter-spacing: -0.02em;
+}
+.h-section {
+  @apply text-2xl font-bold text-[var(--brand-strong)] tracking-tight;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- 칩/배지 ---------- */
+.chip {
+  @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+         bg-[var(--brand-soft)] text-[var(--brand-strong)];
+}
+.chip-accent {
+  @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+         bg-[var(--accent-soft)] text-[var(--accent-deep)];
+}
+
+/* ---------- 리스트 셀 ---------- */
+.row {
+  @apply flex items-center justify-between gap-3 rounded-2xl bg-[var(--surface)] px-4 py-3;
+  border: 1px solid var(--line);
+}
+
+/* ---------- 모바일 하단 탭바 공간 확보 ---------- */
+@media (max-width: 768px) {
+  body { padding-bottom: 72px; }
 }

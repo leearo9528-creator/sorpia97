@@ -1,65 +1,256 @@
-import Image from "next/image";
+import Link from "next/link";
+import { PhotoSlot } from "@/components/PhotoSlot";
+import { createClient } from "@/lib/supabase/server";
+import { BRAND } from "@/lib/brand";
+import {
+  Stamp,
+  PawPrint,
+  Trophy,
+  Sparkles,
+  Ticket,
+  ChevronRight,
+  Calendar,
+  MapPin,
+} from "lucide-react";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let visits = 0;
+  let activePassName: string | null = null;
+  let myRank: number | null = null;
+
+  if (user) {
+    const [{ count: vCount }, { data: pass }] = await Promise.all([
+      supabase
+        .from("visits")
+        .select("id", { count: "exact", head: true })
+        .eq("profile_id", user.id),
+      supabase
+        .from("pass_orders")
+        .select("subscription_passes(name)")
+        .eq("profile_id", user.id)
+        .eq("status", "active")
+        .order("started_on", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+    visits = vCount ?? 0;
+    const passRow = pass as unknown as {
+      subscription_passes: { name: string } | null;
+    } | null;
+    activePassName = passRow?.subscription_passes?.name ?? null;
+
+    // 이번 달 랭킹 (간단 계산)
+    const monthStart = new Date();
+    monthStart.setDate(1);
+    monthStart.setHours(0, 0, 0, 0);
+    const { data: rows } = await supabase
+      .from("visits")
+      .select("profile_id")
+      .gte("visited_at", monthStart.toISOString());
+
+    const counts = new Map<string, number>();
+    for (const r of rows ?? []) {
+      counts.set(r.profile_id, (counts.get(r.profile_id) ?? 0) + 1);
+    }
+    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    const idx = sorted.findIndex(([id]) => id === user.id);
+    myRank = idx >= 0 ? idx + 1 : null;
+  }
+
+  const stamps = visits % 10;
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="pb-12 space-y-6">
+      {/* ============ 사진 + 상호명 (간략) ============ */}
+      <section className="section pt-3 md:pt-6">
+        <PhotoSlot
+          label="사진1"
+          hint="카페 메인 전경"
+          aspect="aspect-[16/10]"
+          rounded="rounded-[24px]"
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+        <div className="mt-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--brand-strong)] tracking-tight">
+              {BRAND.name}
+            </h1>
+            <p className="mt-1 text-xs text-[var(--foreground-mute)] flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              동두천 · {BRAND.landmark}
+            </p>
+          </div>
+          {!user && (
+            <Link href="/signup" className="btn-primary btn-sm">
+              가입
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </section>
+
+      {/* ============ 도장판 (로그인 시) ============ */}
+      {user && (
+        <section className="section">
+          <Link
+            href="/mypage"
+            className="card relative overflow-hidden block hover:bg-[var(--surface-2)]/30 transition-colors"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+            <div
+              aria-hidden
+              className="absolute -right-10 -top-10 w-44 h-44 rounded-full opacity-30 blur-2xl"
+              style={{ background: "radial-gradient(circle, var(--brand-soft), transparent 70%)" }}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <div className="relative flex items-center justify-between">
+              <div>
+                <span className="chip">
+                  <Stamp className="w-3 h-3" /> 출석 도장
+                </span>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-bold text-[var(--brand-strong)]">
+                    {stamps}
+                  </span>
+                  <span className="text-[var(--foreground-mute)] text-sm">/ 10</span>
+                </div>
+                <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+                  누적 {visits}회 · 다음 무료까지 {10 - stamps}회
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-[var(--foreground-mute)]" />
+            </div>
+            <div className="mt-4 grid grid-cols-10 gap-1.5">
+              {Array.from({ length: 10 }).map((_, i) => {
+                const filled = i < stamps;
+                return (
+                  <div
+                    key={i}
+                    className={
+                      "aspect-square rounded-lg flex items-center justify-center text-[10px] font-bold " +
+                      (filled
+                        ? "bg-[var(--brand)] text-white"
+                        : "bg-[var(--surface-2)] text-[var(--foreground-mute)]")
+                    }
+                  >
+                    {filled ? <PawPrint className="w-3 h-3" /> : i + 1}
+                  </div>
+                );
+              })}
+            </div>
+          </Link>
+        </section>
+      )}
+
+      {/* ============ 액션 카드 그리드 (스타벅스 풍) ============ */}
+      <section className="section">
+        <div className="grid grid-cols-2 gap-3">
+          {/* 발자국 */}
+          <Link href="/board" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
+              <PawPrint className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">발자국</div>
+            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+              방문 후기·사진 남기기
+            </p>
+          </Link>
+
+          {/* 랭킹 */}
+          <Link href="/ranking" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
+              <Trophy className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">랭킹</div>
+            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+              {myRank ? `이번 달 ${myRank}위` : "이번 달 TOP 3"}
+            </p>
+          </Link>
+
+          {/* 지금 소르피아 */}
+          <Link href="/now" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">오늘의 소르피아</div>
+            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+              오늘 다녀간 강아지
+            </p>
+          </Link>
+
+          {/* 패스 */}
+          <Link href="/pass" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
+              <Ticket className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">
+              {activePassName ? activePassName : "넥스가드 패스"}
+            </div>
+            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+              {activePassName ? "이번 달 수령 보기" : "12개월 약품 + 음료"}
+            </p>
+          </Link>
         </div>
-      </main>
+      </section>
+
+      {/* ============ 랭킹 미니 배너 (이번 달 상금) ============ */}
+      <section className="section">
+        <Link
+          href="/ranking"
+          className="card relative overflow-hidden block hover:bg-[var(--surface-2)]/30 transition-colors"
+        >
+          <div
+            aria-hidden
+            className="absolute -right-8 -top-8 w-36 h-36 rounded-full opacity-40 blur-2xl"
+            style={{ background: "radial-gradient(circle, var(--accent-soft), transparent 70%)" }}
+          />
+          <div className="relative flex items-center gap-4">
+            <Trophy className="w-9 h-9 text-[var(--accent-deep)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-[var(--accent-deep)] uppercase tracking-wider">
+                이번 달 상금
+              </div>
+              <div className="mt-0.5 font-bold text-[var(--brand-strong)]">
+                출석왕 1등 <span className="text-[var(--accent-deep)]">5만원</span>
+                <span className="text-[var(--foreground-mute)] mx-1">·</span>
+                2등 3만원
+                <span className="text-[var(--foreground-mute)] mx-1">·</span>
+                3등 1만원
+              </div>
+            </div>
+            <ChevronRight className="w-5 h-5 text-[var(--foreground-mute)]" />
+          </div>
+        </Link>
+      </section>
+
+      {/* ============ 정보 ============ */}
+      <section className="section">
+        <h2 className="h-section mb-3">정보</h2>
+        <ul className="card !p-0 divide-y divide-[var(--line)]">
+          <li className="flex items-start gap-3 px-4 py-3.5">
+            <MapPin className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm">{BRAND.address}</div>
+              <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
+                {BRAND.landmark}
+              </div>
+            </div>
+          </li>
+          <li className="flex items-start gap-3 px-4 py-3.5">
+            <Calendar className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm">{BRAND.hours}</div>
+              <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
+                {BRAND.notice}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
     </div>
   );
 }

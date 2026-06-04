@@ -1,0 +1,64 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login?next=/admin");
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role,display_name")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role !== "admin") {
+    return (
+      <div className="mx-auto max-w-md px-4 py-20 text-center">
+        <h1 className="text-xl font-semibold">접근 권한이 없습니다</h1>
+        <p className="opacity-70 mt-2">관리자에게 권한을 요청하세요.</p>
+        <Link href="/" className="btn-outline mt-6 inline-flex">
+          홈으로
+        </Link>
+      </div>
+    );
+  }
+
+  const tabs = [
+    { href: "/admin", label: "대시보드" },
+    { href: "/admin/members", label: "회원·강아지" },
+    { href: "/admin/attendance", label: "출석/쿠폰" },
+    { href: "/admin/passes", label: "구독 패스" },
+    { href: "/admin/content", label: "콘텐츠" },
+  ];
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 md:px-6 py-10">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h1 className="text-2xl font-semibold text-[var(--brand-strong)]">
+          관리자 콘솔
+        </h1>
+        <span className="text-sm opacity-70">{profile?.display_name}</span>
+      </div>
+      <nav className="mt-6 flex flex-wrap gap-2 border-b border-[var(--ring)]/60 pb-3">
+        {tabs.map((t) => (
+          <Link
+            key={t.href}
+            href={t.href}
+            className="rounded-full px-4 py-1.5 text-sm hover:bg-[var(--muted)]"
+          >
+            {t.label}
+          </Link>
+        ))}
+      </nav>
+      <div className="mt-8">{children}</div>
+    </div>
+  );
+}

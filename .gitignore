@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# 사용자 로컬 사진 (Supabase Storage / CDN으로 업로드 예정)
+/image/
+
+# Claude per-user 설정 (launch.json은 공유)
+.claude/settings.local.json
