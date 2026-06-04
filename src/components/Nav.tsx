@@ -47,6 +47,7 @@ export async function Nav() {
           <Link href="/ranking" className="hover:text-[var(--brand-strong)]">랭킹</Link>
           <Link href="/now" className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>
           <Link href="/pass" className="hover:text-[var(--brand-strong)]">패스</Link>
+          <Link href="/trekking" className="hover:text-[var(--brand-strong)]">트레킹</Link>
           {user && (
             <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이</Link>
           )}
