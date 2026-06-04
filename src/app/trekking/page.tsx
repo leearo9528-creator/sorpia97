@@ -3,11 +3,9 @@ import { SectionTabs } from "@/components/SectionTabs";
 import { bookTrekkingAction } from "./actions";
 import {
   Mountain,
-  Smartphone,
   CalendarCheck,
   Gift,
   Clock,
-  Users,
   ChevronRight,
   MapPin,
   CheckCircle2,
@@ -16,7 +14,6 @@ import {
   Star,
   Footprints,
   Leaf,
-  ArrowDown,
   Info,
 } from "lucide-react";
 
