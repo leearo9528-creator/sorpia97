@@ -36,6 +36,7 @@ export default async function AdminLayout({
     { href: "/admin/members", label: "회원·강아지" },
     { href: "/admin/attendance", label: "출석/쿠폰" },
     { href: "/admin/passes", label: "구독 패스" },
+    { href: "/admin/fields", label: "운동장 대관" },
     { href: "/admin/content", label: "콘텐츠" },
     { href: "/admin/announcements", label: "공지사항" },
   ];

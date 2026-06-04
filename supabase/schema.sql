@@ -232,6 +232,27 @@ create policy "dog-photos owner write" on storage.objects for insert with check 
   bucket_id = 'dog-photos' and auth.uid() is not null
 );
 
+-- ----- field_slots (운동장 대관 현황) -------------------------------------
+-- 슬롯이 없으면 '예약가능' 상태로 간주
+create table if not exists public.field_slots (
+  id uuid primary key default gen_random_uuid(),
+  yard text not null check (yard in ('소형견', '중형견', '대형견')),
+  slot_date date not null,
+  slot_time text not null check (slot_time in ('12:00', '15:00', '18:00')),
+  status text not null default 'available'
+    check (status in ('available', 'reserved', 'closed')),
+  note text,
+  unique (yard, slot_date, slot_time)
+);
+
+alter table public.field_slots enable row level security;
+
+drop policy if exists "field_slots public read" on public.field_slots;
+drop policy if exists "field_slots admin all"  on public.field_slots;
+create policy "field_slots public read" on public.field_slots for select using (true);
+create policy "field_slots admin all"  on public.field_slots for all
+  using (public.is_admin()) with check (public.is_admin());
+
 -- ----- announcements (공지사항) ------------------------------------------
 create table if not exists public.announcements (
   id uuid primary key default gen_random_uuid(),
