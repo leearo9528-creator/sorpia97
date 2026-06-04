@@ -167,20 +167,22 @@ export default async function TrekkingPage({
 }) {
   const { message, error } = await searchParams;
 
-  const supabase = await createClient();
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData.user;
+  let user: { id: string } | null = null;
+  let profile: { display_name: string | null; phone: string | null } | null = null;
 
-  let profile: { display_name: string | null; phone: string | null } | null =
-    null;
-  if (user) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("display_name, phone")
-      .eq("id", user.id)
-      .maybeSingle();
-    profile = data;
-  }
+  try {
+    const supabase = await createClient();
+    const { data: userData } = await supabase.auth.getUser();
+    user = userData.user ? { id: userData.user.id } : null;
+    if (user) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name, phone")
+        .eq("id", user.id)
+        .maybeSingle();
+      profile = data;
+    }
+  } catch {}
 
   const today = new Date().toISOString().split("T")[0];
 
