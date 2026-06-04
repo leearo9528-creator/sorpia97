@@ -7,7 +7,6 @@ import {
   PawPrint,
   Trophy,
   Sparkles,
-  Ticket,
   ChevronRight,
   Calendar,
   MapPin,
@@ -22,29 +21,14 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   let visits = 0;
-  let activePassName: string | null = null;
   let myRank: number | null = null;
 
   if (user) {
-    const [{ count: vCount }, { data: pass }] = await Promise.all([
-      supabase
-        .from("visits")
-        .select("id", { count: "exact", head: true })
-        .eq("profile_id", user.id),
-      supabase
-        .from("pass_orders")
-        .select("subscription_passes(name)")
-        .eq("profile_id", user.id)
-        .eq("status", "active")
-        .order("started_on", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-    ]);
+    const { count: vCount } = await supabase
+      .from("visits")
+      .select("id", { count: "exact", head: true })
+      .eq("profile_id", user.id);
     visits = vCount ?? 0;
-    const passRow = pass as unknown as {
-      subscription_passes: { name: string } | null;
-    } | null;
-    activePassName = passRow?.subscription_passes?.name ?? null;
 
     // 이번 달 랭킹 (간단 계산)
     const monthStart = new Date();
@@ -182,18 +166,7 @@ export default async function Home() {
             </p>
           </Link>
 
-          {/* 패스 */}
-          <Link href="/pass" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
-              <Ticket className="w-5 h-5" />
-            </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">
-              {activePassName ? activePassName : "넥스가드 패스"}
-            </div>
-            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
-              {activePassName ? "이번 달 수령 보기" : "12개월 약품 + 음료"}
-            </p>
-          </Link>
+          {/* 패스 — 준비 중, 임시 숨김 */}
         </div>
       </section>
 
