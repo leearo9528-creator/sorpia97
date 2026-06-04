@@ -11,6 +11,7 @@ import {
   Calendar,
   MapPin,
   TreePine,
+  Mountain,
 } from "lucide-react";
 
 const YARDS = ["소형견", "중형견", "대형견"] as const;
@@ -188,8 +189,41 @@ export default async function Home() {
             </p>
           </Link>
 
-          {/* 패스 — 준비 중, 임시 숨김 */}
+          {/* 트레킹 */}
+          <Link href="/trekking" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
+              <Mountain className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">트레킹</div>
+            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
+              왕방산 패키지 예약
+            </p>
+          </Link>
         </div>
+      </section>
+
+      {/* ============ 트레킹 프로모 배너 ============ */}
+      <section className="section">
+        <Link
+          href="/trekking"
+          className="rounded-[24px] overflow-hidden bg-[var(--brand-strong)] text-white flex items-center gap-4 px-5 py-4 hover:opacity-90 transition-opacity"
+        >
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white/10 shrink-0">
+            <Mountain className="w-6 h-6" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-bold uppercase tracking-wider opacity-60">
+              New Program
+            </div>
+            <div className="mt-0.5 font-bold text-sm leading-tight">
+              소르피아 왕방 트레킹 패키지
+            </div>
+            <div className="mt-0.5 text-xs opacity-70">
+              카페에서 출발 · 하산 후 리워드 수령
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 opacity-50 shrink-0" />
+        </Link>
       </section>
 
       {/* ============ 운동장 대관 현황 ============ */}
