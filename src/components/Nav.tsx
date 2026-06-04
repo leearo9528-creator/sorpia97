@@ -44,6 +44,7 @@ export async function Nav() {
 
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[var(--foreground-soft)]">
           <Link href="/announcements" className="hover:text-[var(--brand-strong)]">공지사항</Link>
+          <Link href="/pricing" className="hover:text-[var(--brand-strong)]">요금안내</Link>
           <Link href="/board" className="hover:text-[var(--brand-strong)]">발자국</Link>
           <Link href="/ranking" className="hover:text-[var(--brand-strong)]">랭킹</Link>
           <Link href="/now" className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>

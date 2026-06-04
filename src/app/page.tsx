@@ -12,6 +12,7 @@ import {
   MapPin,
   TreePine,
   Mountain,
+  Bath,
 } from "lucide-react";
 
 const YARDS = ["소형견", "중형견", "대형견"] as const;
@@ -177,6 +178,14 @@ export default async function Home() {
             </div>
             <div className="mt-3 font-bold text-[var(--brand-strong)]">트레킹</div>
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">왕방산 패키지 예약</p>
+          </Link>
+
+          <Link href="/pricing" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
+              <Bath className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">요금안내</div>
+            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕</p>
           </Link>
         </div>
       </section>
