@@ -1,4 +1,4 @@
-import { Bath, Dog, Check, AlertCircle } from "lucide-react";
+import { Bath, Dog, Check, AlertCircle, Flame, Users } from "lucide-react";
 
 export default function PricingPage() {
   return (
@@ -155,6 +155,100 @@ export default function PricingPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ===== 바베큐장 ===== */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Flame className="w-5 h-5 text-[var(--accent-deep)]" />
+          <h2 className="h-section">바베큐장</h2>
+        </div>
+
+        {/* 요금 */}
+        <div className="card !p-0 overflow-hidden">
+          <div className="px-4 py-3 bg-[var(--surface-2)] border-b border-[var(--line)]">
+            <span className="text-xs font-semibold text-[var(--foreground-mute)] uppercase tracking-wider">이용 요금</span>
+          </div>
+          <div className="px-4 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-[var(--brand)]" />
+              <span className="text-sm font-medium">1인</span>
+              <span className="text-xs text-[var(--foreground-mute)]">(미취학 아동 불포함 가능)</span>
+            </div>
+            <span className="text-xl font-bold text-[var(--brand-strong)]">39,000원</span>
+          </div>
+        </div>
+
+        {/* 1인 기본 구성 */}
+        <div className="card space-y-4">
+          <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">1인 기본 구성</p>
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-semibold text-[var(--foreground-mute)] mb-1.5">메인 구성</p>
+              <div className="space-y-1.5">
+                {["국내산 암돼지고기 250g", "그릴드 소시지", "구워 먹는 찰옥수수", "모둠 채소 (버섯, 대파 등)"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]">
+                    <Check className="w-4 h-4 text-[var(--brand)] shrink-0" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-[var(--line)] pt-3">
+              <p className="text-xs font-semibold text-[var(--foreground-mute)] mb-1.5">사이드 & 찌개</p>
+              <div className="space-y-1.5">
+                {["무한리필 반찬 (무쌈, 김치, 무말랭이, 마늘)", "된장찌개 / 김치찌개 / 부대찌개 中 택 1"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]">
+                    <Check className="w-4 h-4 text-[var(--brand)] shrink-0" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-[var(--line)] pt-3">
+              <p className="text-xs font-semibold text-[var(--foreground-mute)] mb-1.5">카페 음료 포함</p>
+              <div className="flex items-start gap-2 text-sm text-[var(--foreground-soft)]">
+                <Check className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
+                <span>
+                  1인당 아메리카노 1잔 증정{" "}
+                  <span className="text-[var(--accent-deep)] font-medium">(오픈이벤트)</span>
+                  <br />
+                  <span className="text-xs text-[var(--foreground-mute)]">다른 메뉴 변경 시 +1,000원</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          <p className="text-xs text-[var(--foreground-mute)] border-t border-[var(--line)] pt-3">
+            무인편의점(주류·음료·한강라면·과자) · 카페&운동장 무제한 이용 · 포토존 즉석 인화 서비스
+          </p>
+        </div>
+
+        {/* 이용방법 */}
+        <div className="card !p-0 overflow-hidden">
+          <div className="px-4 py-3 bg-[var(--surface-2)] border-b border-[var(--line)]">
+            <span className="text-xs font-semibold text-[var(--foreground-mute)] uppercase tracking-wider">이용 방법</span>
+            <p className="text-[11px] text-[var(--foreground-mute)] mt-0.5">장갑을 꼭 착용해 주세요!</p>
+          </div>
+          <ol className="divide-y divide-[var(--line)]">
+            {[
+              { n: 1, main: '화로 가운데 "화로불솟"을 넣어 토치로 불을 피워주세요.', sub: '불이 30초 안으로 잘 붙습니다. 더 붙이면 위험해요!' },
+              { n: 2, main: '바로 고기굽기 NO! 5분 후 석쇠를 올리고 구워주세요.', sub: '너무 세게 불을 붙이면 화재위험이 있습니다. 항상 조심!' },
+              { n: 3, main: '추천 순서: 고기 → 소세지 → 김치 → 버섯 → 파', sub: '추가: 부대찌개 (연탄·용기 포함), 닭꼬치 (데리야키 소스 포함)' },
+              { n: 4, main: '텐트 이용시간: 2시간', sub: '10분 전 정리정돈 + 분리수거 후 용품 반납 필수!' },
+              { n: 5, main: '분리수거: 음식물·재활용·일반쓰레기', sub: '조리도구·토치·부탄가스 등은 예쁜 캠핑박스에 담아 반납해 주세요.' },
+              { n: 6, main: '카페로 돌아가 용품 반납 → 아메리카노 수령 → 운동장에서 계속!', sub: '' },
+              { n: 7, main: '피크닉 텐트 이용 고객: 아메리카노 → 다른 음료 변경 Only +1,000원', sub: '(비싼 거 드세요)' },
+            ].map(({ n, main, sub }) => (
+              <div key={n} className="flex items-start gap-3 px-4 py-3.5">
+                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--brand)] text-white text-xs font-bold shrink-0 mt-0.5">{n}</span>
+                <div>
+                  <p className="text-sm font-medium text-[var(--foreground)]">{main}</p>
+                  {sub && <p className="text-xs text-[var(--foreground-mute)] mt-0.5">{sub}</p>}
+                </div>
+              </div>
+            ))}
+          </ol>
         </div>
       </section>
     </div>

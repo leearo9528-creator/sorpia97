@@ -10,20 +10,11 @@ import {
   ChevronRight,
   Calendar,
   MapPin,
-  TreePine,
   Mountain,
   Bath,
+  UtensilsCrossed,
+  Flame,
 } from "lucide-react";
-
-const YARDS = ["소형견", "중형견", "대형견"] as const;
-const TIMES = ["12:00", "15:00", "18:00"] as const;
-const TIME_LABEL: Record<string, string> = { "12:00": "12시", "15:00": "15시", "18:00": "18시" };
-
-const STATUS_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  available: { bg: "bg-emerald-100",  text: "text-emerald-700", label: "예약가능" },
-  reserved:  { bg: "bg-red-100",      text: "text-red-600",     label: "예약됨"  },
-  closed:    { bg: "bg-[var(--surface-2)]", text: "text-[var(--foreground-mute)]", label: "마감" },
-};
 
 export const dynamic = "force-dynamic";
 
@@ -33,15 +24,6 @@ export default async function Home() {
 
   let visits = 0;
   let myRank: number | null = null;
-
-  const today = new Date().toISOString().split("T")[0];
-  const { data: fieldSlots } = await supabase
-    .from("field_slots")
-    .select("yard,slot_time,status")
-    .eq("slot_date", today);
-
-  const slotMap = new Map<string, string>();
-  for (const s of fieldSlots ?? []) slotMap.set(`${s.yard}|${s.slot_time}`, s.status);
 
   if (user) {
     const { count: vCount } = await supabase
@@ -143,9 +125,17 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ── 메뉴 그리드 ──────────────────────────────── */}
+      {/* ── 바로가기 그리드 ───────────────────────────── */}
       <section className="section">
         <div className="grid grid-cols-2 gap-3">
+          <Link href="/menu" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
+              <UtensilsCrossed className="w-5 h-5" />
+            </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">카페 메뉴</div>
+            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">음료 · 푸드 · 디저트</p>
+          </Link>
+
           <Link href="/board" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
               <PawPrint className="w-5 h-5" />
@@ -185,47 +175,21 @@ export default async function Home() {
               <Bath className="w-5 h-5" />
             </div>
             <div className="mt-3 font-bold text-[var(--brand-strong)]">요금안내</div>
-            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕</p>
+            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕 · BBQ</p>
           </Link>
-        </div>
-      </section>
 
-      {/* ── 운동장 대관 현황 ─────────────────────────── */}
-      <section className="section">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="h-section">운동장 대관</h2>
-          <span className="text-xs text-[var(--foreground-mute)]">오늘</span>
-        </div>
-        <div className="card !p-0 overflow-hidden">
-          <div className="grid grid-cols-4 border-b border-[var(--line)] bg-[var(--surface-2)]">
-            <div className="px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">
-              <TreePine className="w-3.5 h-3.5 inline mr-1 opacity-60" />운동장
-            </div>
-            {TIMES.map((t) => (
-              <div key={t} className="px-2 py-2.5 text-center text-xs font-semibold text-[var(--foreground-mute)]">
-                {TIME_LABEL[t]}
+          <Link href="/pricing#bbq" className="card hover:bg-[var(--surface-2)]/30 transition-colors col-span-2">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)] shrink-0">
+                <Flame className="w-5 h-5" />
               </div>
-            ))}
-          </div>
-          {YARDS.map((yard, yi) => (
-            <div
-              key={yard}
-              className={"grid grid-cols-4 items-center" + (yi < YARDS.length - 1 ? " border-b border-[var(--line)]" : "")}
-            >
-              <div className="px-3 py-3 text-sm font-semibold text-[var(--brand-strong)]">{yard}견</div>
-              {TIMES.map((time) => {
-                const st = slotMap.get(`${yard}|${time}`) ?? "available";
-                const style = STATUS_STYLE[st] ?? STATUS_STYLE.available;
-                return (
-                  <div key={time} className="px-2 py-3 flex justify-center">
-                    <span className={`inline-flex items-center justify-center rounded-xl px-2.5 py-1 text-[11px] font-semibold ${style.bg} ${style.text}`}>
-                      {style.label}
-                    </span>
-                  </div>
-                );
-              })}
+              <div>
+                <div className="font-bold text-[var(--brand-strong)]">바베큐장 예약</div>
+                <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">1인 39,000원 · 고기+찌개+음료 포함</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[var(--foreground-mute)] ml-auto" />
             </div>
-          ))}
+          </Link>
         </div>
       </section>
 
