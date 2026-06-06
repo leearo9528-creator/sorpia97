@@ -5,14 +5,12 @@ import { BRAND } from "@/lib/brand";
 import {
   Stamp,
   PawPrint,
-  Trophy,
   Sparkles,
   ChevronRight,
   Calendar,
   MapPin,
-  Bath,
+  Building2,
   UtensilsCrossed,
-  Flame,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +20,6 @@ export default async function Home() {
   const { data: { user } } = await supabase.auth.getUser();
 
   let visits = 0;
-  let myRank: number | null = null;
 
   if (user) {
     const { count: vCount } = await supabase
@@ -30,20 +27,6 @@ export default async function Home() {
       .select("id", { count: "exact", head: true })
       .eq("profile_id", user.id);
     visits = vCount ?? 0;
-
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    monthStart.setHours(0, 0, 0, 0);
-    const { data: rows } = await supabase
-      .from("visits")
-      .select("profile_id")
-      .gte("visited_at", monthStart.toISOString());
-
-    const counts = new Map<string, number>();
-    for (const r of rows ?? []) counts.set(r.profile_id, (counts.get(r.profile_id) ?? 0) + 1);
-    const sorted = [...counts.entries()].sort((a, b) => b[1] - a[1]);
-    const idx = sorted.findIndex(([id]) => id === user.id);
-    myRank = idx >= 0 ? idx + 1 : null;
   }
 
   const stamps = visits % 10;
@@ -143,14 +126,12 @@ export default async function Home() {
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">방문 후기 · 사진</p>
           </Link>
 
-          <Link href="/ranking" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
-              <Trophy className="w-5 h-5" />
+          <Link href="/pricing" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
+              <Building2 className="w-5 h-5" />
             </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">랭킹</div>
-            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">
-              {myRank ? `이번 달 ${myRank}위` : "1등 5만원 · 2등 3만원"}
-            </p>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">시설안내</div>
+            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕 · BBQ</p>
           </Link>
 
           <Link href="/now" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
@@ -159,22 +140,6 @@ export default async function Home() {
             </div>
             <div className="mt-3 font-bold text-[var(--brand-strong)]">오늘의 소르피아</div>
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">오늘 다녀간 강아지</p>
-          </Link>
-
-          <Link href="/pricing" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
-              <Bath className="w-5 h-5" />
-            </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">요금안내</div>
-            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕 · BBQ</p>
-          </Link>
-
-          <Link href="/pricing#bbq" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
-              <Flame className="w-5 h-5" />
-            </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">바베큐장</div>
-            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">1인 39,000원 · 예약</p>
           </Link>
         </div>
       </section>
