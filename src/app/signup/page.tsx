@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { signUpAction } from "./actions";
-import { AlertCircle, CheckCircle2, Dog, User } from "lucide-react";
+import { AlertCircle, CheckCircle2, User } from "lucide-react";
 
 export default async function SignupPage({
   searchParams,
@@ -15,7 +15,7 @@ export default async function SignupPage({
         <span className="eyebrow">Sign up</span>
         <h1 className="mt-2 h-display">회원가입</h1>
         <p className="mt-3 text-sm text-[var(--foreground-soft)]">
-          보호자와 강아지 정보를 함께 등록해주세요.{" "}
+          보호자 정보를 입력해 주세요. 강아지 정보는 가입 후 마이페이지에서 추가할 수 있어요.{" "}
           <Link href="/login" className="text-[var(--accent)] font-semibold">
             이미 계정 있어요
           </Link>
@@ -36,7 +36,6 @@ export default async function SignupPage({
 
         <form
           action={signUpAction}
-          encType="multipart/form-data"
           className="mt-8 space-y-7"
         >
           <section className="space-y-4">
@@ -63,29 +62,6 @@ export default async function SignupPage({
                 name="password"
                 minLength={8}
                 required
-              />
-            </div>
-          </section>
-
-          <section className="space-y-4">
-            <div className="flex items-center gap-2 text-[var(--brand-strong)] font-semibold">
-              <Dog className="w-4 h-4" /> 강아지 정보
-            </div>
-            <div>
-              <label className="label">강아지 이름</label>
-              <input className="input" name="dog_name" required />
-            </div>
-            <div>
-              <label className="label">생년월일</label>
-              <input className="input" type="date" name="dog_birthday" />
-            </div>
-            <div>
-              <label className="label">강아지 사진</label>
-              <input
-                className="input file:mr-3 file:rounded-full file:border-0 file:bg-[var(--brand)] file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold cursor-pointer"
-                type="file"
-                name="dog_photo"
-                accept="image/*"
               />
             </div>
           </section>

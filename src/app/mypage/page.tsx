@@ -143,7 +143,7 @@ export default async function MyPage() {
       <section>
         <div className="flex items-end justify-between mb-3 px-1">
           <h2 className="h-section">우리 강아지</h2>
-          <button className="text-xs text-[var(--brand)] font-medium">+ 추가</button>
+          <Link href="/mypage/dogs/new" className="text-xs text-[var(--brand)] font-medium">+ 추가</Link>
         </div>
         {(dogs ?? []).length === 0 ? (
           <div className="card-flat text-center py-8">

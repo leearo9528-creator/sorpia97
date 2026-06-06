@@ -10,7 +10,6 @@ import {
   ChevronRight,
   Calendar,
   MapPin,
-  Mountain,
   Bath,
   UtensilsCrossed,
   Flame,
@@ -162,14 +161,6 @@ export default async function Home() {
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">오늘 다녀간 강아지</p>
           </Link>
 
-          <Link href="/trekking" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
-            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
-              <Mountain className="w-5 h-5" />
-            </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">트레킹</div>
-            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">왕방산 패키지 예약</p>
-          </Link>
-
           <Link href="/pricing" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
               <Bath className="w-5 h-5" />
@@ -178,17 +169,12 @@ export default async function Home() {
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕 · BBQ</p>
           </Link>
 
-          <Link href="/pricing#bbq" className="card hover:bg-[var(--surface-2)]/30 transition-colors col-span-2">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)] shrink-0">
-                <Flame className="w-5 h-5" />
-              </div>
-              <div>
-                <div className="font-bold text-[var(--brand-strong)]">바베큐장 예약</div>
-                <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">1인 39,000원 · 고기+찌개+음료 포함</p>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[var(--foreground-mute)] ml-auto" />
+          <Link href="/pricing#bbq" className="card hover:bg-[var(--surface-2)]/30 transition-colors">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--accent-soft)] text-[var(--accent-deep)]">
+              <Flame className="w-5 h-5" />
             </div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">바베큐장</div>
+            <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">1인 39,000원 · 예약</p>
           </Link>
         </div>
       </section>

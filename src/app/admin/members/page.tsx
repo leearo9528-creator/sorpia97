@@ -8,6 +8,12 @@ export default async function MembersPage({
   const { q } = await searchParams;
   const supabase = await createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", user!.id).maybeSingle();
+  if (me?.role !== "admin") {
+    return <p className="py-10 text-center opacity-60 text-sm">이 메뉴는 최고 관리자만 이용할 수 있습니다.</p>;
+  }
+
   let query = supabase
     .from("profiles")
     .select("id,email,display_name,phone,role,created_at,dogs(id,name,birthday,photo_url)")
@@ -61,10 +67,12 @@ export default async function MembersPage({
                         "rounded-full px-2 py-0.5 text-xs " +
                         (m.role === "admin"
                           ? "bg-[var(--accent)] text-white"
+                          : m.role === "manager"
+                          ? "bg-[var(--brand-soft)] text-[var(--brand-strong)]"
                           : "bg-[var(--muted)]")
                       }
                     >
-                      {m.role}
+                      {m.role === "admin" ? "관리자" : m.role === "manager" ? "매니저" : "회원"}
                     </span>
                   </td>
                   <td className="px-4 py-2 opacity-80">

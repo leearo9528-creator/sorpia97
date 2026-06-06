@@ -9,6 +9,12 @@ export default async function PassesAdminPage({
   const { message, error } = await searchParams;
   const supabase = await createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", user!.id).maybeSingle();
+  if (me?.role !== "admin") {
+    return <p className="py-10 text-center opacity-60 text-sm">이 메뉴는 최고 관리자만 이용할 수 있습니다.</p>;
+  }
+
   const [{ data: passes }, { data: orders }] = await Promise.all([
     supabase.from("subscription_passes").select("*").order("created_at", { ascending: false }),
     supabase

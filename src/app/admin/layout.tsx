@@ -2,6 +2,25 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
+const ADMIN_TABS = [
+  { href: "/admin", label: "대시보드" },
+  { href: "/admin/members", label: "회원·강아지" },
+  { href: "/admin/attendance", label: "출석/쿠폰" },
+  { href: "/admin/passes", label: "구독 패스" },
+  { href: "/admin/fields", label: "운동장 대관" },
+  { href: "/admin/trekking", label: "트레킹 예약" },
+  { href: "/admin/content", label: "콘텐츠" },
+  { href: "/admin/announcements", label: "공지사항" },
+];
+
+const MANAGER_TABS = [
+  { href: "/admin", label: "대시보드" },
+  { href: "/admin/attendance", label: "출석/쿠폰" },
+  { href: "/admin/fields", label: "운동장 대관" },
+  { href: "/admin/trekking", label: "트레킹 예약" },
+  { href: "/admin/announcements", label: "공지사항" },
+];
+
 export default async function AdminLayout({
   children,
 }: {
@@ -19,7 +38,8 @@ export default async function AdminLayout({
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role !== "admin") {
+  const role = profile?.role;
+  if (role !== "admin" && role !== "manager") {
     return (
       <div className="mx-auto max-w-md px-4 py-20 text-center">
         <h1 className="text-xl font-semibold">접근 권한이 없습니다</h1>
@@ -31,22 +51,14 @@ export default async function AdminLayout({
     );
   }
 
-  const tabs = [
-    { href: "/admin", label: "대시보드" },
-    { href: "/admin/members", label: "회원·강아지" },
-    { href: "/admin/attendance", label: "출석/쿠폰" },
-    { href: "/admin/passes", label: "구독 패스" },
-    { href: "/admin/fields", label: "운동장 대관" },
-    { href: "/admin/trekking", label: "트레킹 예약" },
-    { href: "/admin/content", label: "콘텐츠" },
-    { href: "/admin/announcements", label: "공지사항" },
-  ];
+  const tabs = role === "admin" ? ADMIN_TABS : MANAGER_TABS;
+  const consoleLabel = role === "admin" ? "관리자 콘솔" : "매니저 콘솔";
 
   return (
     <div className="mx-auto max-w-6xl px-4 md:px-6 py-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h1 className="text-2xl font-semibold text-[var(--brand-strong)]">
-          관리자 콘솔
+          {consoleLabel}
         </h1>
         <span className="text-sm opacity-70">{profile?.display_name}</span>
       </div>
