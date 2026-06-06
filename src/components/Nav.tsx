@@ -43,26 +43,23 @@ export async function Nav() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[var(--foreground-soft)]">
-          <Link href="/announcements" className="hover:text-[var(--brand-strong)]">공지사항</Link>
           <Link href="/menu" className="hover:text-[var(--brand-strong)]">메뉴</Link>
-          <Link href="/pricing" className="hover:text-[var(--brand-strong)]">요금안내</Link>
+          <Link href="/pricing" className="hover:text-[var(--brand-strong)]">시설안내</Link>
           <Link href="/board" className="hover:text-[var(--brand-strong)]">발자국</Link>
-          <Link href="/ranking" className="hover:text-[var(--brand-strong)]">랭킹</Link>
           <Link href="/now" className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>
-          <Link href="/trekking" className="hover:text-[var(--brand-strong)]">트레킹</Link>
           {user && (
-            <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이</Link>
+            <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이페이지</Link>
           )}
         </nav>
 
         <div className="flex items-center gap-2">
-          {role === "admin" && (
+          {(role === "admin" || role === "manager") && (
             <Link
               href="/admin"
               className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] text-[var(--brand-strong)] px-3 py-1.5 text-xs font-bold shadow-sm hover:opacity-90"
             >
               <ShieldCheck className="w-3.5 h-3.5" />
-              관리자
+              {role === "admin" ? "관리자" : "매니저"}
             </Link>
           )}
           {user ? (
