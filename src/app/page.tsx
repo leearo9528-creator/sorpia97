@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PhotoSlot } from "@/components/PhotoSlot";
+import { CopyAddress } from "@/components/CopyAddress";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import {
@@ -42,21 +43,11 @@ export default async function Home() {
           aspect="aspect-[16/10]"
           rounded="rounded-[24px]"
         />
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--brand-strong)] tracking-tight">
-              {BRAND.name}
-            </h1>
-            <p className="mt-0.5 text-xs text-[var(--foreground-mute)] flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              동두천 · {BRAND.landmark}
-            </p>
-          </div>
-          {!user && (
-            <Link href="/signup" className="btn-primary btn-sm">
-              가입 <ChevronRight className="w-3.5 h-3.5" />
-            </Link>
-          )}
+        <div className="mt-4">
+          <h1 className="text-2xl font-bold text-[var(--brand-strong)] tracking-tight">
+            {BRAND.name}
+          </h1>
+          <CopyAddress address={BRAND.address} />
         </div>
       </section>
 

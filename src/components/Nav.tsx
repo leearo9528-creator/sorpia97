@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import { SignOutButton } from "./SignOutButton";
-import { Bell, MapPin, ShieldCheck } from "lucide-react";
+import { Bell, ShieldCheck } from "lucide-react";
 
 export async function Nav() {
   let user: { id: string; email?: string } | null = null;
@@ -35,9 +35,6 @@ export async function Nav() {
           <div className="leading-tight">
             <div className="font-bold text-[15px] text-[var(--brand-strong)]">
               {BRAND.name}
-            </div>
-            <div className="hidden md:flex items-center gap-1 text-[11px] text-[var(--foreground-mute)]">
-              <MapPin className="w-3 h-3" /> 동두천
             </div>
           </div>
         </Link>
