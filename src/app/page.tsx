@@ -122,7 +122,7 @@ export default async function Home() {
             <div className="inline-flex items-center justify-center w-10 h-10 rounded-2xl bg-[var(--brand-soft)] text-[var(--brand-strong)]">
               <Building2 className="w-5 h-5" />
             </div>
-            <div className="mt-3 font-bold text-[var(--brand-strong)]">시설안내</div>
+            <div className="mt-3 font-bold text-[var(--brand-strong)]">이용안내</div>
             <p className="mt-0.5 text-xs text-[var(--foreground-soft)]">입장권 · 셀프목욕 · BBQ</p>
           </Link>
 

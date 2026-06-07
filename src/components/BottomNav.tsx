@@ -7,7 +7,7 @@ import { Home, PawPrint, Building2, User } from "lucide-react";
 const TABS = [
   { href: "/",        label: "홈",      icon: Home,      match: (p: string) => p === "/" },
   { href: "/board",   label: "발자국",  icon: PawPrint,  match: (p: string) => p.startsWith("/board") },
-  { href: "/pricing", label: "시설안내", icon: Building2, match: (p: string) => p.startsWith("/pricing") },
+  { href: "/pricing", label: "이용안내", icon: Building2, match: (p: string) => p.startsWith("/pricing") },
   { href: "/mypage",  label: "마이",    icon: User,
     match: (p: string) =>
       p.startsWith("/mypage") || p.startsWith("/login") || p.startsWith("/signup"),
