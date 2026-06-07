@@ -5,7 +5,7 @@ import {
   Ticket,
   Dog,
   Gift,
-  PawPrint,
+  ChevronRight,
 } from "lucide-react";
 
 export default async function MyPage() {
@@ -42,7 +42,6 @@ export default async function MyPage() {
   ]);
 
   const visits = visitCount ?? 0;
-  const stamps = visits % 10;
   const validCoupons = (coupons ?? []).filter((c) => !c.used_at);
   const usedCoupons = (coupons ?? []).filter((c) => c.used_at);
 
@@ -75,34 +74,21 @@ export default async function MyPage() {
             </span>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-4xl font-bold text-[var(--brand-strong)]">
-                {stamps}
+                {visits}
               </span>
-              <span className="text-[var(--foreground-mute)] text-sm">/ 10</span>
+              <span className="text-[var(--foreground-mute)] text-sm">회</span>
             </div>
             <p className="mt-1 text-xs text-[var(--foreground-soft)]">
-              누적 {visits}회 · 다음 무료 음료까지 {10 - stamps}회
+              이달 방문 횟수 · 월 1위 5만원권 / 2위 3만원권 / 3위 1만원권
             </p>
+            <Link
+              href="/ranking"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:opacity-70"
+            >
+              랭킹 보러가기 <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
           <Gift className="w-7 h-7 text-[var(--accent)]" />
-        </div>
-
-        <div className="mt-5 grid grid-cols-10 gap-1.5">
-          {Array.from({ length: 10 }).map((_, i) => {
-            const filled = i < stamps;
-            return (
-              <div
-                key={i}
-                className={
-                  "aspect-square rounded-xl flex items-center justify-center text-[10px] font-bold transition-all " +
-                  (filled
-                    ? "bg-[var(--brand)] text-white shadow-sm"
-                    : "bg-[var(--surface-2)] text-[var(--foreground-mute)]")
-                }
-              >
-                {filled ? <PawPrint className="w-3.5 h-3.5" /> : i + 1}
-              </div>
-            );
-          })}
         </div>
       </section>
 
