@@ -1,37 +1,11 @@
-# 소르피아97 — 애견 동반 카페 멤버십 앱
+# 소르피아97
 
-Next.js 16 (App Router) + Supabase + Tailwind CSS v4 로 만든 동네 애견 카페 MVP.
+경기 동두천 5,000평 애견동반 카페 · 캠프닉 · 트레킹 복합공간의 멤버십 / 안내 / 운영 콘솔.
 
----
-
-## 기술 스택
-
-| 항목 | 버전 / 내용 |
-|------|------------|
-| Next.js | 16.2.7 (App Router, React Server Components) |
-| React | 19.2.4 |
-| Supabase | `@supabase/ssr` 0.10.3 + `@supabase/supabase-js` 2.107 |
-| Tailwind CSS | v4 (PostCSS 플러그인, CSS 변수 기반 테마) |
-| 아이콘 | lucide-react 1.17 |
-| 언어 | TypeScript 5, strict 모드 |
-| 폰트 | Pretendard (CDN) |
-
----
-
-## 환경 변수 (`.env.local`)
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
-SUPABASE_SERVICE_ROLE_KEY=eyJ...   # 서버 전용 (RLS 우회)
-ADMIN_EMAILS=owner@example.com     # 쉼표로 여러 명 가능
-```
-
-`ADMIN_EMAILS`에 등록된 이메일은 회원가입 시 자동으로 `role='admin'` 부여.
-이미 가입된 계정 승격은:
-```sql
-update public.profiles set role = 'admin' where email = 'me@example.com';
-```
+- Next.js 16 (App Router) · React 19 · TypeScript 5
+- Supabase (Postgres · Auth · Storage) — RLS 기반
+- Tailwind CSS v4 (CSS 변수 테마)
+- 아이콘: lucide-react · 폰트: Pretendard (CDN)
 
 ---
 
@@ -42,21 +16,118 @@ npm install
 npm run dev   # http://localhost:3000
 ```
 
-DB 초기화: Supabase SQL Editor에서 `supabase/schema.sql` → `supabase/board.sql` 순서로 실행.
+DB 초기화 — Supabase SQL Editor 에서 순서대로 실행:
+1. `supabase/schema.sql`   — 핵심 테이블·RLS·트리거
+2. `supabase/board.sql`    — 발자국 게시판
+3. `supabase/trekking.sql` — 트레킹 패키지 예약
 
 ---
 
-## 브랜드 상수 (`src/lib/brand.ts`)
+## 환경 변수 (`.env.local` / Vercel)
 
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...   # 서버 전용 (RLS 우회)
 ```
-name:     소르피아97
-tagline:  하울의 움직이는 성 실사판, 소피와 하울의 들판
-address:  경기도 동두천시 삼육사로 1802
-landmark: (BRAND.landmark)
-hours:    매일 오픈 (매주 월요일 휴무)
-notice:   매주 화요일은 수영장 물 교체일...
-phone:    010-0000-0000  ← TODO: 실제 번호 입력
-```
+
+- `SUPABASE_SERVICE_ROLE_KEY` 는 `NEXT_PUBLIC_` 접두사 금지. 노출 시 DB 전체 권한 유출.
+- 관리자 승격은 SQL 로 수동 처리:
+  ```sql
+  update public.profiles set role = 'admin' where email = '<아이디>';
+  ```
+
+---
+
+## 인증 모델 (아이디 + 비밀번호)
+
+Supabase Auth 는 이메일이 필수라 **아이디를 가상 이메일로 변환**해서 사용한다.
+
+- 사용자 입력: `hong` → 내부 저장: `hong@id.sorpia97.app`
+- 변환 유틸: `src/lib/auth-id.ts`
+- `profiles.email` 컬럼에는 가상 도메인을 떼고 아이디만 저장 (관리자가 회원 목록에서 식별하기 쉽게)
+- 아이디 규칙: 영문/숫자/`._-` 4–20자
+
+가입 트리거 `on_auth_user_created` 가 `auth.users` 행을 만들 때 `profiles` 를 자동 생성하고, 그 직후 `signup` 액션이 `display_name`·`phone`·`email(=아이디)` 을 업데이트한다.
+
+---
+
+## 라우트 맵
+
+### 공개 / 회원
+
+| 경로 | 인증 | 설명 |
+|------|------|------|
+| `/` | 선택 | 홈 — 도장판(로그인 시), 메뉴/이용안내/발자국/오늘의 소르피아 그리드, 전화·길찾기 CTA |
+| `/menu` | — | 카페 메뉴 (Best · Signature · 음료 · 푸드 · 여름한정). **현재 하드코딩** |
+| `/pricing` | — | 이용안내 (입장 · 선택이용 · 원데이패스 · 대관) |
+| `/board` | 선택 | 발자국 피드 (게시 + 좋아요) |
+| `/board/new` | 회원 | 발자국 작성 (사진 업로드) |
+| `/ranking` | 선택 | 이번 달 출석 랭킹 TOP 50 (TOP3 상금) |
+| `/now` | 선택 | 오늘 출석한 강아지 그리드 |
+| `/announcements` | — | 공지사항 목록 (pinned 우선) |
+| `/pass` | 선택 | 넥스가드 패스 랜딩 + 신청 |
+| `/trekking` | 선택 | 왕방산 트레킹 패키지 안내 + 예약 (비회원도 가능) |
+| `/login` `/signup` | — | 아이디/비밀번호 |
+| `/mypage` | 회원 | 출석 도장 · 쿠폰 · 강아지 · 활성 패스 |
+| `/mypage/dogs/new` | 회원 | 강아지 등록 (사진 업로드) |
+
+### 관리자 (`role in ('admin','manager')`)
+
+| 경로 | 권한 | 설명 |
+|------|------|------|
+| `/admin` | 둘 다 | 대시보드 KPI |
+| `/admin/members` | admin | 회원 검색 (편집 X — TODO) |
+| `/admin/attendance` | 둘 다 | 출석 도장 / 쿠폰 수동 발급 / 최근 출석 로그 |
+| `/admin/passes` | admin | 패스 상품·주문 목록 + 월별 지급 그리드 |
+| `/admin/fields` | 둘 다 | 운동장 슬롯 (소/중/대형견 × 12·15·18시) |
+| `/admin/trekking` | 둘 다 | 날짜별 트레킹 예약 + 상태 변경 |
+| `/admin/content` | admin | CMS (cafe_intro, facility) |
+| `/admin/announcements` | 둘 다 | 공지 작성/삭제 |
+
+레이아웃: `src/app/admin/layout.tsx` 에서 role 검사. `manager` 는 `ADMIN_TABS` 일부만 노출.
+
+> **현재 Nav 미노출 페이지**: `/pass`, `/trekking`, `/ranking`, `/announcements`. 직접 URL 또는 다른 페이지 내부 링크로만 접근.
+
+---
+
+## 데이터 모델
+
+### Core (`schema.sql`)
+
+| 테이블 | 핵심 컬럼 | 비고 |
+|--------|-----------|------|
+| `profiles` | id (FK→auth.users), email, display_name, phone, role | role: `member`/`admin` (코드는 `manager` 도 사용 — **스키마 불일치, TODO**) |
+| `dogs` | owner_id, name, birthday, photo_url | 1 보호자 N 강아지 |
+| `visits` | profile_id, visited_at, checked_by, memo | 10회마다 `attendance` 쿠폰 자동 발급 트리거 |
+| `coupons` | profile_id, kind, title, expires_at, used_at | kind: `attendance` / `pass_drink` / `etc` |
+| `contents` | key (PK), title, body, image_url | CMS — `cafe_intro`, `facility` |
+| `subscription_passes` | code, name, duration_months, monthly_product, monthly_drink_quota, price, is_active | 상품 정의. 시드: `nexgard12` |
+| `pass_orders` | profile_id, pass_id, started_on, expires_on, status | status: `active`/`paused`/`expired`/`canceled`/`pending` (`pending` 은 코드에서만 사용, 스키마 check 누락) |
+| `pass_redemptions` | order_id, month_index, product_redeemed_at, drinks_issued | unique(order_id, month_index) |
+| `field_slots` | yard, slot_date, slot_time, status | 슬롯 없으면 `available` 간주 |
+| `announcements` | title, body, category, pinned | category: general/event/notice/closure |
+
+### Board (`board.sql`)
+- `board_posts(profile_id, content, photo_url)`
+- `board_likes(post_id, profile_id)` — 복합 PK
+
+### Trekking (`trekking.sql`)
+- `trekking_bookings(profile_id?, guest_name, guest_phone, trek_date, party_size, package_type, status, note)`
+- 비회원도 예약 가능 (이름+전화로 식별)
+
+### Storage 버킷
+- `dog-photos` (public) — 강아지 사진
+- `board-photos` (public) — 발자국 사진
+
+### RLS 원칙
+- 회원은 본인 데이터만 R/W
+- `contents`, `subscription_passes`, `announcements`, `field_slots`, `board_posts`, `trekking_bookings` (insert) = 공개 read
+- `is_admin()` 함수가 admin role 검사. **`manager` 는 RLS 차원에서는 일반 회원과 같다**. (서버 라우트 가드만 manager 허용)
+
+### 트리거
+- `on_auth_user_created` → `profiles` 자동 생성
+- `trg_issue_attendance_coupon` → 출석 10회마다 음료 쿠폰
 
 ---
 
@@ -65,183 +136,178 @@ phone:    010-0000-0000  ← TODO: 실제 번호 입력
 ```
 src/
 ├── app/
-│   ├── layout.tsx            # 루트 레이아웃 (Nav, BottomNav, Footer 포함)
-│   ├── globals.css           # Tailwind 4 + CSS 변수 테마 + 공통 컴포넌트 유틸
-│   ├── page.tsx              # 홈 — 카페 사진, 도장판, 액션 그리드, 정보
-│   ├── board/
-│   │   ├── page.tsx          # 발자국 피드 (게시글 + 좋아요)
-│   │   ├── new/page.tsx      # 게시글 작성 (텍스트 + 이미지 업로드)
-│   │   └── actions.ts        # createPostAction, toggleLikeAction
-│   ├── login/
-│   │   ├── page.tsx          # 이메일/비밀번호 로그인
-│   │   └── actions.ts        # signInAction
-│   ├── signup/
-│   │   ├── page.tsx          # 회원가입 (보호자 + 강아지 정보)
-│   │   └── actions.ts        # signUpAction (강아지 사진 Storage 업로드 포함)
-│   ├── mypage/
-│   │   └── page.tsx          # 마이페이지 — 도장, 쿠폰, 강아지 카드, 패스 현황
-│   ├── ranking/
-│   │   └── page.tsx          # 이번 달 출석 랭킹 TOP 50 (1~3위 상금 표시)
-│   ├── now/
-│   │   └── page.tsx          # 오늘의 소르피아 — 오늘 방문한 강아지 그리드
-│   ├── pass/
-│   │   ├── page.tsx          # 패스 랜딩 (히어로, 혜택, 비교표, FAQ)  ← 현재 Nav에서 숨김
-│   │   └── actions.ts        # applyForPassFromLanding
-│   ├── shop/
-│   │   ├── page.tsx          # 패스 상품 목록                          ← 현재 Nav에서 숨김
-│   │   └── actions.ts        # applyForPassAction
+│   ├── layout.tsx · globals.css · page.tsx
+│   ├── login/ signup/                  # 아이디 인증
+│   ├── menu/                           # 하드코딩 메뉴 — TODO: DB 백킹
+│   ├── pricing/                        # 이용안내 (SectionTabs)
+│   ├── board/ board/new/               # 발자국 + actions.ts
+│   ├── ranking/ now/                   # 출석 기반 집계 페이지
+│   ├── announcements/                  # 공지 목록 (관리자 작성)
+│   ├── mypage/ mypage/dogs/new/        # 마이 + 강아지 등록
+│   ├── pass/                           # 넥스가드 패스 랜딩
+│   ├── trekking/                       # 왕방산 트레킹 예약
 │   └── admin/
-│       ├── layout.tsx        # 관리자 레이아웃 (role 검사 + 탭 네비)
-│       ├── page.tsx          # 대시보드 KPI (회원/강아지/오늘방문/패스/쿠폰)
-│       ├── members/page.tsx  # 회원 테이블 (검색 가능)
-│       ├── attendance/
-│       │   ├── page.tsx      # 출석 체크 + 최근 방문 로그
-│       │   └── actions.ts    # checkInAction, issueCouponAction
-│       ├── content/
-│       │   ├── page.tsx      # CMS 편집 (cafe_intro, facility)
-│       │   └── actions.ts    # updateContentAction
-│       └── passes/
-│           ├── page.tsx      # 패스 상품 + 주문 목록 + 월별 수령 그리드
-│           └── actions.ts    # activateOrderAction, redeemMonthAction
+│       ├── layout.tsx                  # role 가드 + 탭
+│       ├── page.tsx                    # KPI 대시보드
+│       ├── members/                    # 회원 검색 (편집 X)
+│       ├── attendance/                 # 출석 + 쿠폰
+│       ├── passes/                     # 패스 상품/주문/지급
+│       ├── fields/                     # 운동장 슬롯
+│       ├── trekking/                   # 트레킹 예약 관리
+│       ├── content/                    # CMS
+│       └── announcements/              # 공지
 ├── components/
-│   ├── Nav.tsx               # 상단 헤더 (sticky, auth 상태 반응, 관리자 뱃지)
-│   ├── BottomNav.tsx         # 모바일 하단 탭바 [홈·발자국·랭킹·마이] — /admin에서 숨김
-│   ├── Footer.tsx            # 데스크톱 푸터
-│   ├── PhotoSlot.tsx         # 이미지 플레이스홀더 (관리자 편집 예정)
-│   ├── SignOutButton.tsx     # 클라이언트 — 로그아웃 후 홈 이동
-│   ├── SaveButton.tsx        # 클라이언트 — 북마크 토글 (미사용)
-│   ├── ShareButton.tsx       # 클라이언트 — Web Share API / 클립보드 fallback
-│   └── SectionTabs.tsx       # 클라이언트 — sticky 탭 (Intersection Observer 연동)
+│   ├── Nav.tsx · BottomNav.tsx · Footer.tsx
+│   ├── ContactActions.tsx              # 전화 + 네이버 길찾기 CTA
+│   ├── CopyAddress.tsx                 # 주소 복사
+│   ├── PhotoSlot.tsx                   # 이미지 placeholder
+│   ├── SectionTabs.tsx                 # IntersectionObserver sticky 탭
+│   └── SignOutButton.tsx
 └── lib/
-    ├── brand.ts              # 브랜드 상수
-    └── supabase/
-        ├── server.ts         # SSR 서버 클라이언트 (cookies 기반 세션)
-        ├── client.ts         # 브라우저 클라이언트
-        ├── middleware.ts     # 세션 갱신 + 인증 필요 경로 리다이렉트
-        └── admin.ts          # Service role 클라이언트 (RLS 우회, 서버 전용)
+    ├── brand.ts                        # 브랜드 상수
+    ├── auth-id.ts                      # 아이디 ↔ 가상 이메일
+    └── supabase/{server,client,middleware,admin}.ts
 
-middleware.ts                 # Next.js 미들웨어 — /mypage, /admin 미인증 시 /login 이동
-supabase/schema.sql           # 핵심 테이블 + RLS + 트리거
-supabase/board.sql            # board_posts, board_likes 테이블 (schema.sql 이후 실행)
+middleware.ts                           # /mypage, /admin 미인증 → /login
+supabase/{schema,board,trekking}.sql
 ```
 
 ---
 
-## 데이터베이스 스키마
+## 디자인 시스템 (`globals.css`)
 
-### 테이블
+CSS 변수 팔레트 (들판 초록 + 햇살 노랑):
+- `--brand` `#3a7a3f` · `--brand-strong` `#225028` · `--brand-soft` `#d8ecc4`
+- `--accent` `#f0b429` · `--accent-soft` `#fce8a2` · `--accent-deep` `#c08711`
+- `--background` `#fbfaee` (크림) · `--surface-2` `#f4efd0`
 
-| 테이블 | 주요 컬럼 | 비고 |
-|--------|----------|------|
-| `profiles` | id(UUID), email, display_name, phone, role(member/admin) | `auth.users`와 1:1 |
-| `dogs` | id, owner_id(FK→profiles), name, birthday, photo_url | 보호자당 N마리 |
-| `visits` | id, profile_id, visited_at, checked_by, memo | 출석 체크 기록 |
-| `coupons` | id, profile_id, kind, title, expires_at, used_at | kind: attendance / pass_drink 등 |
-| `contents` | key(PK), title, body, image_url, updated_at | CMS — cafe_intro, facility |
-| `subscription_passes` | id, code, name, duration_months, monthly_product, monthly_drink_quota, price, is_active | 상품 정의 |
-| `pass_orders` | id, profile_id, pass_id, started_on, expires_on, status | status: active/paused/expired/canceled |
-| `pass_redemptions` | id, order_id, month_index, product_redeemed_at, drinks_issued | 월별 지급 이력 |
-| `board_posts` | id, profile_id, body, photo_url, created_at | 발자국 게시글 |
-| `board_likes` | post_id, profile_id | 좋아요 (복합 PK) |
+공통 유틸: `.btn-primary` `.btn-outline` `.btn-ghost` `.btn-accent` `.btn-sm` · `.card` `.card-flat` · `.input` `.textarea` `.label` · `.chip` `.chip-accent` · `.eyebrow` `.h-display` `.h-section` · `.section` `.section-wide` · `.row` · `.pb-safe` `.pt-safe`
 
-### Storage 버킷
-
-| 버킷 | 공개 | 용도 |
-|------|------|------|
-| `dog-photos` | ✅ | 강아지 프로필 사진 |
-| `board-photos` | ✅ | 게시글 첨부 사진 |
-
-### RLS 요약
-
-모든 테이블 RLS 활성화. 기본 원칙:
-- 회원은 **자기 데이터만** 읽기/쓰기
-- `contents`, `subscription_passes`는 **전체 공개 읽기**
-- `role='admin'`은 **전체 접근**
-
-### 트리거
-
-| 트리거 | 시점 | 동작 |
-|--------|------|------|
-| `on_auth_user_created` | `auth.users` INSERT 후 | `profiles` 행 자동 생성 |
-| `trg_issue_attendance_coupon` | `visits` INSERT 후 | 10회 방문마다 쿠폰 자동 발급 |
+터치 타겟 최소 48px, 모바일 본문 하단 72px 패딩 (탭바 공간).
 
 ---
 
-## 핵심 비즈니스 로직
+## 페이지별 TODO
 
-### 출석 도장
-1. 관리자 `/admin/attendance`에서 회원 검색 → 체크인
-2. 10회마다 DB 트리거가 `attendance` 쿠폰 자동 발급
-3. 홈·마이페이지에서 현재 10회 주기 내 도장 수 표시
+스키마/코드/UX 디테일 정리 — 우선순위 ★★★ 부터.
 
-### 구독 패스 (현재 UI 숨김 상태)
-1. `subscription_passes`에 상품 정의 (현재: `nexgard12` — 12개월, 월 넥스가드 1개 + 음료 15잔, 360,000원)
-2. 회원이 `/shop` 또는 `/pass`에서 신청 → `pass_orders` 생성
-3. 관리자가 `/admin/passes`에서 매월 수령 버튼 클릭 → `pass_redemptions` 기록 + 음료 쿠폰 발급
-4. 쿠폰 유효기간 45일
+### 전역 / 인프라
 
-### 발자국 (게시판)
-1. 회원이 `/board/new`에서 텍스트 + 사진 업로드
-2. 사진은 `board-photos` 버킷에 저장, URL을 `board_posts.photo_url`에 기록
-3. 다른 회원이 좋아요 가능 (`board_likes` 테이블)
+- [ ] ★★★ **`profiles.role` check 제약 확장** — `('member','manager','admin')` 으로 변경. 현재 `manager` 로 업데이트 시 DB 가 거절.
+  ```sql
+  alter table public.profiles drop constraint profiles_role_check,
+    add constraint profiles_role_check check (role in ('member','manager','admin'));
+  ```
+- [ ] ★★ `pass_orders.status` check 에 `'pending'` 추가 (현재 코드는 사용하지만 스키마는 미허용)
+- [ ] ★★ Nav · BottomNav 에 `/announcements`, `/ranking`, `/trekking` 노출 (또는 의도적 숨김임을 코드 주석에 명시)
+- [ ] ★ `is_admin()` 외에 `is_staff()` 헬퍼 추가 — manager 도 운영 기능 RLS 통과시키기
+- [ ] ★ 카카오 OAuth (현재 placeholder 문구만 있음)
+- [ ] ★ 푸시 / 카카오 알림톡 (월별 패스 지급 안내, 공지)
+- [ ] ★ Storage 이미지 next/image 최적화 (현재 `<img>` + eslint-disable)
+
+### `/` 홈
+- [ ] PhotoSlot 자리에 실제 카페 사진 (관리자 업로드 + Storage 연동)
+- [ ] 도장 카드: 디바이스마다 흔들리는 그라데이션 blur 모바일 성능 점검
+- [ ] 오픈 이벤트(`BRAND.event` 닭가슴살 서비스) 배너 슬롯
+- [ ] 비로그인 시 가입 유도 카드 1개
+
+### `/menu`
+- [ ] ★★★ **DB 백킹** — `menu_categories` + `menu_items` 테이블 신설, `/admin/menu` 에서 가격 조정 (요청사항)
+- [ ] `priceText` 처럼 가변 가격 표시(13,000 / 20,000원) 표현 방식 결정
+- [ ] 시즌 한정(여름) on/off 토글
+- [ ] 사진 슬롯 추가 (Best·Signature 만이라도)
+
+### `/pricing`
+- [ ] 가격이 코드 안에 박혀 있음. 운영진이 가격 변경 시 코드 수정 필요. CMS 화 검토
+- [ ] 셀프목욕 추가품목, 바베큐 구성 — `contents` 같은 단순 CMS 로 옮기거나 별도 테이블
+- [ ] 원데이패스 할인 금액 계산을 자동화 (`bathOrig - bath` 로직)
+
+### `/board`, `/board/new`
+- [ ] 페이지네이션 — 현재 50건 고정. 무한 스크롤 또는 더보기
+- [ ] 댓글 (`board_comments` 신설)
+- [ ] 본인 글 수정/삭제 UI (RLS 는 이미 있음)
+- [ ] 사진 압축 / 리사이즈 (업로드 전 클라이언트에서)
+- [ ] 부적절 콘텐츠 신고
+
+### `/ranking`
+- [ ] 출석 "보호자 1인당 1일 1회" 정책이 RLS / 트리거 차원에서 강제되고 있지 않음 — 같은 날 중복 visit insert 가능
+- [ ] 매월 1일 00:00 초기화 안내가 있는데, 실제 집계는 단순 `gte(monthStart)` 라 자동 — TZ (서버 UTC vs KST) 확인
+- [ ] TOP3 상금 지급 자동화 / 수동 정산 흐름
+
+### `/now`
+- [ ] "출석 도장이 찍힌 회원의 강아지" 만 보임 — 사진 없는 강아지가 많아 보임. placeholder 일러스트 다양화
+- [ ] 보호자 1명이 여러 마리면 전부 표시됨 — 의도 맞는지 확인
+
+### `/announcements`
+- [ ] Nav 노출
+- [ ] 카테고리 필터
+- [ ] 본문이 길 때 펼치기 (현재 전체 노출)
+
+### `/pass`
+- [ ] Nav 노출 여부 결정 — 현재 의도적 숨김 (README 구버전 코멘트)
+- [ ] 신청 시 강아지 선택 (어떤 강아지에게 약품 지급할지)
+- [ ] 결제 연동 (토스페이먼츠 / 카카오페이) — 현재 매장 결제만
+
+### `/trekking`
+- [ ] Nav 노출
+- [ ] 날짜별 정원 제한 (`trekking_bookings` 에 `party_size` 합계 체크)
+- [ ] 비회원 예약 후 본인 확인(전화 인증) 흐름
+- [ ] 미션 스팟 사진 인증을 앱 안에서 처리 (현재는 카운터 대면 확인)
+- [ ] 예약 시 강아지 정보 옵셔널 필드
+
+### `/login`, `/signup`
+- [ ] "카카오 로그인 곧 추가" placeholder → 구현 or 제거
+- [ ] 아이디 중복 검사 비동기 표시 (현재는 submit 후 메시지)
+- [ ] 전화번호 형식 검증 / 자동 하이픈
+
+### `/mypage`
+- [ ] 강아지 수정/삭제 UI
+- [ ] 쿠폰 사용 처리 — 현재 회원 쪽에는 사용 버튼이 없음 (매장에서 카운터가 처리)
+- [ ] 활성 패스 월별 지급 상태 시각화 (`pass_redemptions` join)
+- [ ] 프로필 수정 (이름·전화)
+
+### `/admin`
+- [ ] manager 대시보드는 활성 패스/쿠폰 카운트 보일 필요 있는지 검토 (RLS 통과 여부)
+- [ ] 그래프 (주간/월간 방문 추이)
+
+### `/admin/members`
+- [ ] ★★★ **편집 UI** (요청사항) — 권한 셀렉트, 전화/이름 수정, 회원 비활성화
+- [ ] 페이지네이션 (현재 limit 100)
+- [ ] CSV 내보내기
+- [ ] 강아지 사진 썸네일 표시
+
+### `/admin/attendance`
+- [ ] 체크인 confirm — 잘못 누르면 즉시 visits insert 됨
+- [ ] 같은 날 중복 체크인 가드
+- [ ] 출석 취소(visits delete) 기능
+
+### `/admin/passes`
+- [ ] 상품 추가/수정 UI — 현재는 SQL 직접 (`nexgard12` 시드만)
+- [ ] 주문 상태별 필터
+- [ ] 환불 처리 흐름
+
+### `/admin/fields`
+- [ ] 슬롯 시간이 12/15/18시 고정 — 운영시간 변경 시 코드 수정 필요
+- [ ] 운동장 종류·가격도 코드 상수 (`YARD_PRICE`) — 가격 테이블화
+
+### `/admin/trekking`
+- [ ] 패키지 가격이 코드 상수 (`PKG_LABEL`)
+- [ ] 일별·주별 통계
+- [ ] 알림톡 자동 발송 (확정 시)
+
+### `/admin/content`
+- [ ] 이미지 URL 입력만 가능 — Storage 직접 업로드 UI
+- [ ] 편집 가능 키가 코드 상수 (`EDITABLE_KEYS`) — 동적으로 늘리려면 신규 키 추가 흐름
+
+### `/admin/announcements`
+- [ ] 수정 기능 (현재 작성·삭제만)
+- [ ] 이미지 첨부
 
 ---
 
-## 라우트 → 페이지 요약
+## 운영 메모
 
-| 경로 | 인증 필요 | 설명 |
-|------|----------|------|
-| `/` | 선택 | 홈 (비로그인도 접근 가능, 도장판은 로그인 시만 표시) |
-| `/board` | 선택 | 게시글 목록 (작성은 로그인 필요) |
-| `/board/new` | ✅ | 게시글 작성 |
-| `/login` | — | 로그인 |
-| `/signup` | — | 회원가입 |
-| `/mypage` | ✅ | 내 정보·도장·쿠폰·강아지 |
-| `/ranking` | 선택 | 이번 달 출석 랭킹 |
-| `/now` | 선택 | 오늘 방문한 강아지 |
-| `/pass` | 선택 | 패스 랜딩 (**Nav에서 숨김**) |
-| `/shop` | 선택 | 패스 상품 목록 (**Nav에서 숨김**) |
-| `/admin` | ✅ admin | 관리자 대시보드 |
-| `/admin/members` | ✅ admin | 회원 목록 |
-| `/admin/attendance` | ✅ admin | 출석 체크 |
-| `/admin/content` | ✅ admin | CMS 편집 |
-| `/admin/passes` | ✅ admin | 패스 주문·수령 관리 |
-
----
-
-## CSS / 디자인 시스템
-
-`src/app/globals.css`에 Tailwind v4 CSS 변수로 정의.
-
-| 변수 | 값 | 용도 |
-|------|-----|------|
-| `--brand` | `#3a7a3f` | 기본 초록 |
-| `--brand-strong` | `#1e4a22` | 진한 초록 |
-| `--brand-soft` | `#d4edda` | 연한 초록 배경 |
-| `--accent` | `#f0b429` | 머스타드 노랑 |
-| `--accent-deep` | `#b77f00` | 진한 노랑 |
-| `--accent-soft` | `#fef3c7` | 연한 노랑 배경 |
-| `--background` | `#fbfaee` | 크림 흰색 |
-
-공통 유틸 클래스: `.btn-primary`, `.btn-ghost`, `.btn-sm`, `.card`, `.input`, `.textarea`, `.chip`, `.chip-accent`, `.eyebrow`, `.h-display`, `.h-section`, `.section`, `.section-wide`
-
----
-
-## 현재 숨겨진 기능
-
-| 기능 | 위치 | 상태 |
-|------|------|------|
-| 넥스가드 패스 | 홈 그리드 카드, Nav "패스" 링크 | 임시 숨김 (`page.tsx`, `Nav.tsx`에서 주석 처리) |
-
-페이지 파일(`/pass`, `/shop`)과 DB 데이터는 그대로 존재. 다시 노출하려면 `src/app/page.tsx`의 패스 카드 블록과 `src/components/Nav.tsx`의 패스 링크 주석만 해제.
-
----
-
-## TODO
-
-- [ ] 카카오 OAuth 연동
-- [ ] 결제 연동 (토스페이먼츠 / 카카오페이)
-- [ ] 강아지 QR 카드 / 백신 정보 업로드
-- [ ] 푸시 / 카카오 알림톡 (월별 지급 안내)
-- [ ] 관리자 콘텐츠 이미지 직접 업로드 UI
-- [ ] `brand.ts` 실제 전화번호 입력
+- BRAND 상수: `src/lib/brand.ts` 의 전화·주소·운영시간·이벤트 문구
+- 카페 휴무: 월요일 정기, 화요일은 수영장 물 교체일
+- 패스 시드: `nexgard12` (12개월, 월 넥스가드 1개 + 음료 15장, 360,000원)
+- 트레킹 패키지: basic 9,900원 / premium 14,900원 (코드 상수)

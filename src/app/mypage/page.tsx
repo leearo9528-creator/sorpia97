@@ -227,7 +227,7 @@ export default async function MyPage() {
         <div className="flex items-end justify-between mb-3 px-1">
           <h2 className="h-section">내 구독 패스</h2>
           <Link
-            href="/shop"
+            href="/pass"
             className="text-xs text-[var(--brand)] font-medium inline-flex items-center"
           >
             상품 <ChevronRight className="w-3.5 h-3.5" />
@@ -239,7 +239,7 @@ export default async function MyPage() {
             <p className="text-sm text-[var(--foreground-soft)]">
               아직 가입한 구독 패스가 없습니다.
             </p>
-            <Link href="/shop" className="btn-outline btn-sm mt-3 inline-flex">
+            <Link href="/pass" className="btn-outline btn-sm mt-3 inline-flex">
               패스 둘러보기
             </Link>
           </div>

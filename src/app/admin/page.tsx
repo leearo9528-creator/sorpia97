@@ -1,13 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 
-async function count(table: string, filter?: (q: ReturnType<Awaited<ReturnType<typeof createClient>>["from"]>) => void) {
-  const supabase = await createClient();
-  let q = supabase.from(table).select("*", { count: "exact", head: true });
-  filter?.(q as unknown as ReturnType<typeof supabase.from>);
-  const { count } = await q;
-  return count ?? 0;
-}
-
 export default async function AdminHome() {
   const supabase = await createClient();
   const [m, d, vToday, activePasses, coupons] = await Promise.all([
