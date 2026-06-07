@@ -64,12 +64,17 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* 보호자 1인 1음료 */}
+          {/* 보호자 선택 안내 */}
+          <p className="text-xs font-semibold text-[var(--foreground-mute)] px-1">
+            보호자는 아래 중 하나를 선택해 주세요
+          </p>
+
+          {/* 옵션 A: 음료 */}
           <div className="card border-2 border-[var(--brand-soft)]">
             <div className="flex items-start gap-3">
               <Coffee className="w-5 h-5 text-[var(--brand)] shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-[var(--brand-strong)]">보호자 1인 1음료 필수</p>
+                <p className="font-bold text-[var(--brand-strong)]">A. 보호자 1인 음료 1잔</p>
                 <p className="mt-1 text-sm text-[var(--foreground-soft)]">
                   카페에서 음료 1잔 이상 주문해 주세요.
                 </p>
@@ -90,16 +95,15 @@ export default function PricingPage() {
             <div className="flex-1 h-px bg-[var(--line)]" />
           </div>
 
-          {/* 바베큐 대안 */}
+          {/* 옵션 B: 바베큐 */}
           <div className="card !p-0 overflow-hidden border-2 border-[var(--accent-soft)]">
             <div className="px-4 py-3 bg-[var(--accent-soft)] border-b border-[var(--line)]">
               <div className="flex items-center gap-2">
                 <Flame className="w-4 h-4 text-[var(--accent-deep)]" />
-                <span className="font-bold text-[var(--accent-deep)]">바베큐 1인 39,000원</span>
-                <span className="text-xs bg-[var(--accent-deep)] text-white rounded-full px-2 py-0.5 font-semibold">입장료 대체 가능</span>
+                <span className="font-bold text-[var(--accent-deep)]">B. 바베큐 1인 39,000원</span>
               </div>
               <p className="text-xs text-[var(--accent-deep)]/80 mt-0.5">
-                바베큐 결제 시 강아지 입장료 + 음료가 포함됩니다
+                강아지 입장료 + 바베큐로 즐기는 옵션
               </p>
             </div>
             <div className="px-4 py-3 space-y-1.5">
