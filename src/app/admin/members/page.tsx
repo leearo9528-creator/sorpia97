@@ -416,9 +416,6 @@ export default async function MembersPage({
                     <button
                       type="submit"
                       className="text-xs text-red-500 hover:text-red-700 hover:underline"
-                      onClick={(e) => {
-                        // client-side confirm handled via DeleteMemberButton if needed
-                      }}
                     >
                       회원 탈퇴 처리
                     </button>
