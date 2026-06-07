@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { AdminNav } from "./AdminNav";
 
 const ADMIN_TABS = [
   { href: "/admin/members",      label: "회원·강아지" },
@@ -55,17 +56,7 @@ export default async function AdminLayout({
         </h1>
         <span className="text-sm opacity-70">{profile?.display_name}</span>
       </div>
-      <nav className="mt-6 flex flex-wrap gap-2 border-b border-[var(--ring)]/60 pb-3">
-        {tabs.map((t) => (
-          <Link
-            key={t.href}
-            href={t.href}
-            className="rounded-full px-4 py-1.5 text-sm hover:bg-[var(--muted)]"
-          >
-            {t.label}
-          </Link>
-        ))}
-      </nav>
+      <AdminNav tabs={tabs} />
       <div className="mt-8">{children}</div>
     </div>
   );

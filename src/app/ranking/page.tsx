@@ -24,7 +24,7 @@ export default async function RankingPage() {
     p_month: month,
   });
 
-  const sorted = (rows ?? []) as { profile_id: string; display_name: string; visit_count: number }[];
+  const sorted = (rows ?? []) as { profile_id: string; display_name: string; visit_count: number; dog_count: number }[];
 
   const myEntry = user ? sorted.find((s) => s.profile_id === user.id) ?? null : null;
   const myRank  = myEntry ? sorted.indexOf(myEntry) + 1 : null;
