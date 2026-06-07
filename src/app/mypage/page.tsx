@@ -55,9 +55,6 @@ export default async function MyPage() {
               <span className="text-4xl font-bold text-[var(--brand-strong)]">{visits}</span>
               <span className="text-[var(--foreground-mute)] text-sm">회</span>
             </div>
-            <p className="mt-1 text-xs text-[var(--foreground-soft)]">
-              이달 방문 횟수 · 월 1위 5만원권 / 2위 3만원권 / 3위 1만원권
-            </p>
             <Link
               href="/ranking"
               className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:opacity-70"
