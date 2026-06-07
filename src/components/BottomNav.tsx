@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, PawPrint, Building2, User } from "lucide-react";
+import { Home, Building2, Sparkles, User } from "lucide-react";
 
 const TABS = [
-  { href: "/",        label: "홈",      icon: Home,      match: (p: string) => p === "/" },
-  { href: "/board",   label: "발자국",  icon: PawPrint,  match: (p: string) => p.startsWith("/board") },
-  { href: "/pricing", label: "이용안내", icon: Building2, match: (p: string) => p.startsWith("/pricing") },
-  { href: "/mypage",  label: "마이",    icon: User,
+  { href: "/",        label: "홈",           icon: Home,      match: (p: string) => p === "/" },
+  { href: "/pricing", label: "이용안내",     icon: Building2, match: (p: string) => p.startsWith("/pricing") },
+  { href: "/now",     label: "오늘의 소르피아", icon: Sparkles,  match: (p: string) => p.startsWith("/now") },
+  { href: "/mypage",  label: "마이",         icon: User,
     match: (p: string) =>
       p.startsWith("/mypage") || p.startsWith("/login") || p.startsWith("/signup"),
   },
