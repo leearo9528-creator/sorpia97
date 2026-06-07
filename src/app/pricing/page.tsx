@@ -165,7 +165,7 @@ export default function PricingPage() {
               {[
                 { label: "소형견", kg: "7kg 이하",  time: "1시간", price: "7,000원" },
                 { label: "중형견", kg: "15kg 이하", time: "1시간", price: "15,000원" },
-                { label: "대형견", kg: "30kg 이하", time: "1시간", price: "25,000원" },
+                { label: "대형견", kg: "30kg 이하", time: "2시간", price: "25,000원" },
                 { label: "대형견", kg: "30kg 초과", time: "2시간", price: "35,000원" },
               ].map(({ label, kg, time, price }) => (
                 <div key={kg} className="flex items-center justify-between px-4 py-3.5">
