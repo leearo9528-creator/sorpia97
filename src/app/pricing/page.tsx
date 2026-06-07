@@ -277,7 +277,7 @@ export default function PricingPage() {
               <div className="px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-[var(--brand-strong)]">① 대형견 운동장</p>
+                    <p className="font-bold text-[var(--brand-strong)]">① 대형운동장</p>
                     <p className="text-xs text-[var(--foreground-mute)] mt-0.5">700평 운동장 + 11m 냉난방 셸터</p>
                   </div>
                   <span className="font-bold text-[var(--brand-strong)]">55,000원</span>
@@ -290,7 +290,7 @@ export default function PricingPage() {
               <div className="px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-[var(--brand-strong)]">② 중형견 운동장</p>
+                    <p className="font-bold text-[var(--brand-strong)]">② 중형운동장</p>
                     <p className="text-xs text-[var(--foreground-mute)] mt-0.5">약 500평 운동장 + 7m 냉난방 셸터</p>
                   </div>
                   <span className="font-bold text-[var(--brand-strong)]">55,000원</span>
@@ -299,7 +299,7 @@ export default function PricingPage() {
               <div className="px-4 py-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="font-bold text-[var(--brand-strong)]">③ 소형견 운동장</p>
+                    <p className="font-bold text-[var(--brand-strong)]">③ 소형운동장</p>
                     <p className="text-xs text-[var(--foreground-mute)] mt-0.5">약 250평 + 바베큐 텐트 3개</p>
                   </div>
                   <span className="font-bold text-[var(--brand-strong)]">45,000원</span>

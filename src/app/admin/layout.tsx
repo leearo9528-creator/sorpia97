@@ -6,7 +6,6 @@ const ADMIN_TABS = [
   { href: "/admin", label: "대시보드" },
   { href: "/admin/members", label: "회원·강아지" },
   { href: "/admin/attendance", label: "출석/쿠폰" },
-  { href: "/admin/passes", label: "구독 패스" },
   { href: "/admin/fields", label: "운동장 대관" },
   { href: "/admin/trekking", label: "트레킹 예약" },
   { href: "/admin/menu", label: "메뉴 가격" },

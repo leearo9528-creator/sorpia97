@@ -4,7 +4,7 @@ import { ResetButton } from "./ResetButton";
 
 export const dynamic = "force-dynamic";
 
-const YARDS = ["소형견", "중형견", "대형견"] as const;
+const YARDS = ["대형운동장", "중형운동장", "소형운동장"] as const;
 const TIMES = ["12:00", "15:00", "18:00"] as const;
 
 const TIME_LABEL: Record<string, string> = {
@@ -13,9 +13,9 @@ const TIME_LABEL: Record<string, string> = {
   "18:00": "18시",
 };
 const YARD_PRICE: Record<string, string> = {
-  소형견: "45,000원",
-  중형견: "55,000원",
-  대형견: "55,000원",
+  대형운동장: "55,000원",
+  중형운동장: "55,000원",
+  소형운동장: "45,000원",
 };
 
 type SlotStatus = "available" | "reserved" | "closed";
@@ -109,7 +109,7 @@ export default async function FieldsAdminPage({
             {/* 운동장 헤더 */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--line)] bg-[var(--surface-2)]">
               <div>
-                <span className="font-bold text-[var(--brand-strong)]">{yard}견 운동장</span>
+                <span className="font-bold text-[var(--brand-strong)]">{yard}</span>
                 <span className="ml-2 text-xs text-[var(--foreground-mute)]">{YARD_PRICE[yard]}</span>
               </div>
             </div>
