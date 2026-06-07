@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import { NavMenu } from "./NavMenu";
+import { InstallPWA } from "./InstallPWA";
 
 export async function Nav() {
   let user: { id: string } | null = null;
@@ -23,18 +24,16 @@ export async function Nav() {
 
   return (
     <header className="sticky top-0 z-30 bg-[var(--background)]/85 backdrop-blur border-b border-[var(--line)]">
-      <div className="section-wide h-14 md:h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2.5">
+      <div className="section-wide h-14 md:h-16 flex items-center justify-between gap-3">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <span
             className="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-[var(--brand)] text-white text-sm font-bold"
             aria-hidden
           >
             S
           </span>
-          <div className="leading-tight">
-            <div className="font-bold text-[15px] text-[var(--brand-strong)]">
-              {BRAND.name}
-            </div>
+          <div className="font-bold text-[15px] text-[var(--brand-strong)]">
+            {BRAND.name}
           </div>
         </Link>
 
@@ -43,19 +42,12 @@ export async function Nav() {
           <Link href="/pricing" className="hover:text-[var(--brand-strong)]">이용안내</Link>
           <Link href="/board"   className="hover:text-[var(--brand-strong)]">발자국</Link>
           <Link href="/now"     className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>
-          {user && (
-            <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이페이지</Link>
-          )}
+          {user && <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이페이지</Link>}
         </nav>
 
-        <div className="flex items-center gap-1">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] text-white px-3 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
-          >
-            홈 바로가기
-          </Link>
-          <NavMenu user={user} role={role} />
+        <div className="flex items-center gap-2 shrink-0">
+          <InstallPWA />
+          <NavMenu user={user} role={role} brandName={BRAND.name} />
         </div>
       </div>
     </header>
