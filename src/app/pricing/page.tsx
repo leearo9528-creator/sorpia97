@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 
 const TABS = [
+  { id: "package", label: "요금표" },
   { id: "entry", label: "입장안내" },
   { id: "optional", label: "선택이용" },
   { id: "rental", label: "월요일 대관" },
@@ -38,6 +39,70 @@ export default function PricingPage() {
       </div>
 
       <div className="space-y-10 mt-6">
+
+        {/* ===== 요금 한눈에 보기 ===== */}
+        <section id="package" className="space-y-4 scroll-mt-32">
+          <div className="flex items-center gap-2">
+            <Dog className="w-5 h-5 text-[var(--brand)]" />
+            <h2 className="h-section">댕댕이 입장권</h2>
+          </div>
+
+          {/* 기본 입장료 */}
+          <div className="card !p-0 overflow-hidden">
+            <div className="divide-y divide-[var(--line)]">
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm font-semibold">15kg 이하</span>
+                <span className="font-bold text-[var(--brand-strong)]">5,000원</span>
+              </div>
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm font-semibold">15kg 초과</span>
+                <span className="font-bold text-[var(--brand-strong)]">10,000원</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 패키지 요금표 */}
+          <div className="card !p-0 overflow-hidden">
+            <div className="px-4 py-3 bg-[var(--accent-soft)] border-b border-[var(--line)]">
+              <p className="text-sm font-bold text-[var(--accent-deep)]">패키지</p>
+              <p className="text-xs text-[var(--accent-deep)]/70 mt-0.5">목욕 패키지 → 원하는 목욕 시간 예약 선점 가능</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[320px]">
+                <thead>
+                  <tr className="border-b border-[var(--line)] bg-[var(--surface-2)]">
+                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">구분</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">7kg</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">15kg</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">30kg</th>
+                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">30kg+</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--line)]">
+                  <tr>
+                    <td className="px-4 py-3 text-sm font-medium">입장+수영</td>
+                    <td className="px-3 py-3 text-center font-semibold text-[var(--brand-strong)]" colSpan={2}>10,000원</td>
+                    <td className="px-3 py-3 text-center font-semibold text-[var(--brand-strong)]" colSpan={2}>20,000원</td>
+                  </tr>
+                  <tr className="bg-[var(--accent-soft)]/50">
+                    <td className="px-4 py-3 text-sm font-bold text-[var(--accent-deep)]">입장+수영+목욕</td>
+                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">15,000</td>
+                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">22,000</td>
+                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">40,000</td>
+                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">45,000</td>
+                  </tr>
+                  <tr className="text-[var(--foreground-mute)]">
+                    <td className="px-4 py-2 text-xs">원가</td>
+                    <td className="px-3 py-2 text-center text-xs line-through">17,000</td>
+                    <td className="px-3 py-2 text-center text-xs line-through">25,000</td>
+                    <td className="px-3 py-2 text-center text-xs line-through">45,000</td>
+                    <td className="px-3 py-2 text-center text-xs line-through">55,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
 
         {/* ===== ① 입장 안내 (필수) ===== */}
         <section id="entry" className="space-y-4 scroll-mt-32">
@@ -223,32 +288,6 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* 목욕 패키지 안내 */}
-          <div className="card bg-[var(--accent-soft)]/50">
-            <p className="text-xs font-bold text-[var(--accent-deep)] mb-2">입장+수영+목욕 패키지</p>
-            <p className="text-xs text-[var(--foreground-soft)] mb-2">패키지 결제 시 원하는 목욕 시간 예약 선점 가능</p>
-            <div className="overflow-x-auto">
-              <table className="text-xs min-w-[300px] w-full">
-                <thead>
-                  <tr className="border-b border-[var(--line)]">
-                    <th className="text-left py-1.5 font-semibold text-[var(--foreground-mute)]">7kg</th>
-                    <th className="text-center py-1.5 font-semibold text-[var(--foreground-mute)]">15kg</th>
-                    <th className="text-center py-1.5 font-semibold text-[var(--foreground-mute)]">30kg</th>
-                    <th className="text-right py-1.5 font-semibold text-[var(--foreground-mute)]">30kg+</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-1.5 font-bold text-[var(--accent-deep)]">15,000</td>
-                    <td className="py-1.5 text-center font-bold text-[var(--accent-deep)]">22,000</td>
-                    <td className="py-1.5 text-center font-bold text-[var(--accent-deep)]">40,000</td>
-                    <td className="py-1.5 text-right font-bold text-[var(--accent-deep)]">45,000</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <p className="text-[11px] text-[var(--foreground-mute)] mt-2">결제 후 패키지 번복 불가</p>
-          </div>
         </section>
 
         {/* ===== ③ 월요일 단독 대관 ===== */}
