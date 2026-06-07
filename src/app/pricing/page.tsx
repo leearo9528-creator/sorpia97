@@ -14,13 +14,14 @@ import {
   ChevronRight,
   Clock,
   Waves,
+  Ticket,
 } from "lucide-react";
 
 const TABS = [
-  { id: "package", label: "요금표" },
-  { id: "entry", label: "입장안내" },
+  { id: "entry",   label: "입장안내" },
   { id: "optional", label: "선택이용" },
-  { id: "rental", label: "월요일 대관" },
+  { id: "daypass", label: "원데이패스" },
+  { id: "rental",  label: "대관" },
 ];
 
 export default function PricingPage() {
@@ -40,64 +41,7 @@ export default function PricingPage() {
 
       <div className="space-y-10 mt-6">
 
-        {/* ===== 요금 한눈에 보기 ===== */}
-        <section id="package" className="space-y-4 scroll-mt-32">
-          <div className="flex items-center gap-2">
-            <Dog className="w-5 h-5 text-[var(--brand)]" />
-            <h2 className="h-section">댕댕이 입장권</h2>
-          </div>
-
-          {/* 기본 입장료 */}
-          <div className="card !p-0 overflow-hidden">
-            <div className="divide-y divide-[var(--line)]">
-              <div className="flex items-center justify-between px-4 py-3.5">
-                <span className="text-sm font-semibold">15kg 이하</span>
-                <span className="font-bold text-[var(--brand-strong)]">5,000원</span>
-              </div>
-              <div className="flex items-center justify-between px-4 py-3.5">
-                <span className="text-sm font-semibold">15kg 초과</span>
-                <span className="font-bold text-[var(--brand-strong)]">10,000원</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 패키지 요금표 — 체급별 세로 카드 */}
-          <div className="card !p-0 overflow-hidden">
-            <div className="px-4 py-3 bg-[var(--accent-soft)] border-b border-[var(--line)]">
-              <p className="text-sm font-bold text-[var(--accent-deep)]">패키지</p>
-              <p className="text-xs text-[var(--accent-deep)]/70 mt-0.5">목욕 패키지 → 원하는 목욕 시간 예약 선점 가능</p>
-            </div>
-            <div className="divide-y divide-[var(--line)]">
-              {[
-                { kg: "7kg 이하",   swim: "10,000원", bath: "15,000원", bathOrig: "17,000원" },
-                { kg: "15kg 이하",  swim: "10,000원", bath: "22,000원", bathOrig: "25,000원" },
-                { kg: "30kg 이하",  swim: "20,000원", bath: "40,000원", bathOrig: "45,000원" },
-                { kg: "30kg 초과",  swim: "20,000원", bath: "45,000원", bathOrig: "55,000원" },
-              ].map(({ kg, swim, bath, bathOrig }) => (
-                <div key={kg} className="px-4 py-3.5 space-y-2">
-                  <p className="text-xs font-bold text-[var(--foreground-mute)] uppercase tracking-wider">{kg}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[var(--foreground-soft)]">입장 + 수영</span>
-                    <span className="font-semibold text-[var(--brand-strong)]">{swim}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-[var(--accent-deep)]">입장 + 수영 + 목욕</span>
-                    <div className="text-right">
-                      <span className="font-bold text-[var(--accent-deep)]">{bath}</span>
-                      <span className="ml-2 text-xs text-[var(--foreground-mute)] line-through">{bathOrig}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex items-start gap-2 px-4 py-3 border-t border-[var(--line)] bg-red-50">
-              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-xs text-red-600 font-medium">결제 후 패키지 변경·번복은 불가합니다. 입장 전에 꼭 결정해 주세요!</p>
-            </div>
-          </div>
-        </section>
-
-        {/* ===== ① 입장 안내 (필수) ===== */}
+        {/* ===== ① 입장안내 ===== */}
         <section id="entry" className="space-y-4 scroll-mt-32">
           <div className="flex items-center gap-2">
             <Dog className="w-5 h-5 text-[var(--brand)]" />
@@ -128,7 +72,6 @@ export default function PricingPage() {
           </p>
 
           <div className="grid grid-cols-2 gap-3">
-            {/* 옵션 A: 음료 */}
             <div className="card border-2 border-[var(--brand-soft)] flex flex-col gap-2">
               <Coffee className="w-5 h-5 text-[var(--brand)]" />
               <p className="font-bold text-[var(--brand-strong)] text-sm leading-snug">카페 음료 1잔</p>
@@ -140,8 +83,6 @@ export default function PricingPage() {
                 메뉴 보기 <ChevronRight className="w-3 h-3" />
               </Link>
             </div>
-
-            {/* 옵션 B: 바베큐 */}
             <div className="card border-2 border-[var(--accent-soft)] flex flex-col gap-2">
               <Flame className="w-5 h-5 text-[var(--accent-deep)]" />
               <p className="font-bold text-[var(--accent-deep)] text-sm leading-snug">바베큐<br />1인 39,000원</p>
@@ -181,10 +122,9 @@ export default function PricingPage() {
               </div>
             </div>
           </div>
-
         </section>
 
-        {/* ===== ② 선택 이용 ===== */}
+        {/* ===== ② 선택이용 ===== */}
         <section id="optional" className="space-y-4 scroll-mt-32">
           <div className="flex items-center gap-2">
             <span className="h-section">선택 이용</span>
@@ -221,11 +161,9 @@ export default function PricingPage() {
               <span className="font-semibold text-[var(--brand-strong)]">셀프목욕</span>
               <span className="inline-flex items-center rounded-lg bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5 ml-1">BATH</span>
             </div>
-
-            {/* 요금표 */}
             <div className="divide-y divide-[var(--line)]">
               {[
-                { label: "소형견", kg: "7kg 이하", time: "1시간", price: "7,000원" },
+                { label: "소형견", kg: "7kg 이하",  time: "1시간", price: "7,000원" },
                 { label: "중형견", kg: "15kg 이하", time: "1시간", price: "15,000원" },
                 { label: "대형견", kg: "30kg 이하", time: "1시간", price: "25,000원" },
                 { label: "대형견", kg: "30kg 초과", time: "2시간", price: "35,000원" },
@@ -240,8 +178,6 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-
-            {/* 제공품목 */}
             <div className="px-4 py-3 border-t border-[var(--line)] bg-[var(--brand-soft)]/30 space-y-1.5">
               <p className="text-[11px] font-bold text-[var(--brand-strong)] uppercase tracking-wider mb-2">제공품목</p>
               {[
@@ -254,17 +190,15 @@ export default function PricingPage() {
                 </div>
               ))}
             </div>
-
-            {/* 추가품목 */}
             <div className="border-t border-[var(--line)]">
               <div className="px-4 py-2.5 bg-[var(--surface-2)]">
                 <span className="text-[11px] font-bold text-[var(--foreground-mute)] uppercase tracking-wider">추가품목</span>
               </div>
               <div className="divide-y divide-[var(--line)]">
                 {[
-                  { label: "일회용 우비", sub: "털 붙는 것 방지", price: "3,000원" },
-                  { label: "디얼스코 머드팩", sub: "", price: "8,500원" },
-                  { label: "추가 일회용 수건", sub: "", price: "1,000원" },
+                  { label: "일회용 우비",       sub: "털 붙는 것 방지", price: "3,000원" },
+                  { label: "디얼스코 머드팩",   sub: "",               price: "8,500원" },
+                  { label: "추가 일회용 수건",  sub: "",               price: "1,000원" },
                 ].map(({ label, sub, price }) => (
                   <div key={label} className="flex items-center justify-between px-4 py-3">
                     <div>
@@ -277,10 +211,52 @@ export default function PricingPage() {
               </div>
             </div>
           </div>
-
         </section>
 
-        {/* ===== ③ 월요일 단독 대관 ===== */}
+        {/* ===== ③ 소르피아 원데이패스 ===== */}
+        <section id="daypass" className="space-y-4 scroll-mt-32">
+          <div className="flex items-center gap-2">
+            <Ticket className="w-5 h-5 text-[var(--brand)]" />
+            <h2 className="h-section">소르피아 원데이패스</h2>
+          </div>
+
+          <div className="card bg-[var(--brand-soft)]/40 text-sm text-[var(--foreground-soft)]">
+            <p>입장 + 수영장 + 셀프목욕을 묶음으로 더 저렴하게 이용할 수 있어요.</p>
+            <p className="mt-1 text-xs text-[var(--foreground-mute)]">목욕 패키지는 원하는 목욕 시간 예약 선점이 가능합니다.</p>
+          </div>
+
+          <div className="card !p-0 overflow-hidden">
+            <div className="divide-y divide-[var(--line)]">
+              {[
+                { kg: "7kg 이하",  swim: "10,000원", bath: "15,000원", bathOrig: "17,000원" },
+                { kg: "15kg 이하", swim: "10,000원", bath: "22,000원", bathOrig: "25,000원" },
+                { kg: "30kg 이하", swim: "20,000원", bath: "40,000원", bathOrig: "45,000원" },
+                { kg: "30kg 초과", swim: "20,000원", bath: "45,000원", bathOrig: "55,000원" },
+              ].map(({ kg, swim, bath, bathOrig }) => (
+                <div key={kg} className="px-4 py-3.5 space-y-2">
+                  <p className="text-xs font-bold text-[var(--foreground-mute)] uppercase tracking-wider">{kg}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[var(--foreground-soft)]">입장 + 수영</span>
+                    <span className="font-semibold text-[var(--brand-strong)]">{swim}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-[var(--accent-deep)]">입장 + 수영 + 목욕</span>
+                    <div className="text-right">
+                      <span className="font-bold text-[var(--accent-deep)]">{bath}</span>
+                      <span className="ml-2 text-xs text-[var(--foreground-mute)] line-through">{bathOrig}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-start gap-2 px-4 py-3 border-t border-[var(--line)] bg-red-50">
+              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600 font-medium">결제 후 패키지 변경·번복은 불가합니다. 입장 전에 꼭 결정해 주세요!</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ===== ④ 대관 ===== */}
         <section id="rental" className="space-y-4 scroll-mt-32">
           <div className="flex items-center gap-2">
             <CalendarDays className="w-5 h-5 text-[var(--accent-deep)]" />
@@ -294,7 +270,6 @@ export default function PricingPage() {
             <p className="mt-1.5 text-xs text-[var(--foreground-mute)]">※ 평일 대관도 가능합니다. 전화로 문의해 주세요.</p>
           </div>
 
-          {/* 요금표 */}
           <div className="card !p-0 overflow-hidden">
             <div className="px-4 py-3 bg-[var(--surface-2)] border-b border-[var(--line)]">
               <span className="text-xs font-semibold text-[var(--foreground-mute)] uppercase tracking-wider">운동장 대관 요금 (3시간)</span>
@@ -334,7 +309,6 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* 대관 포함 안내 */}
           <div className="card space-y-2">
             <p className="text-xs font-bold text-[var(--brand-strong)] mb-2">대관 중 이용 안내</p>
             {[
