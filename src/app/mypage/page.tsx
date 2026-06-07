@@ -4,10 +4,8 @@ import {
   Stamp,
   Ticket,
   Dog,
-  ChevronRight,
   Gift,
   PawPrint,
-  ShoppingBag,
 } from "lucide-react";
 
 export default async function MyPage() {
@@ -32,7 +30,6 @@ export default async function MyPage() {
     { data: dogs },
     { count: visitCount },
     { data: coupons },
-    { data: orders },
   ] = await Promise.all([
     supabase.from("profiles").select("display_name,phone,email,role").eq("id", user.id).maybeSingle(),
     supabase.from("dogs").select("id,name,birthday,photo_url").eq("owner_id", user.id),
@@ -42,14 +39,6 @@ export default async function MyPage() {
       .select("id,kind,title,description,issued_at,expires_at,used_at")
       .eq("profile_id", user.id)
       .order("issued_at", { ascending: false }),
-    supabase
-      .from("pass_orders")
-      .select(
-        "id,started_on,expires_on,status,subscription_passes(name,monthly_product,monthly_drink_quota,duration_months)",
-      )
-      .eq("profile_id", user.id)
-      .eq("status", "active")
-      .order("started_on", { ascending: false }),
   ]);
 
   const visits = visitCount ?? 0;
@@ -125,14 +114,6 @@ export default async function MyPage() {
           <div className="mt-0.5 text-2xl font-bold text-[var(--brand-strong)]">
             {validCoupons.length}
             <span className="text-sm text-[var(--foreground-mute)] font-medium ml-1">장</span>
-          </div>
-        </div>
-        <div className="card-flat">
-          <ShoppingBag className="w-5 h-5 text-[var(--brand)]" />
-          <div className="mt-2 text-xs text-[var(--foreground-mute)]">활성 구독 패스</div>
-          <div className="mt-0.5 text-2xl font-bold text-[var(--brand-strong)]">
-            {(orders ?? []).filter((o) => o.status === "active").length}
-            <span className="text-sm text-[var(--foreground-mute)] font-medium ml-1">개</span>
           </div>
         </div>
       </section>
@@ -220,70 +201,6 @@ export default async function MyPage() {
         )}
       </section>
 
-      {/* 구독 패스 */}
-      <section>
-        <div className="flex items-end justify-between mb-3 px-1">
-          <h2 className="h-section">내 구독 패스</h2>
-          <Link
-            href="/pass"
-            className="text-xs text-[var(--brand)] font-medium inline-flex items-center"
-          >
-            상품 <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-
-        {(orders ?? []).length === 0 ? (
-          <div className="card-flat text-center py-6">
-            <p className="text-sm text-[var(--foreground-soft)]">
-              아직 가입한 구독 패스가 없습니다.
-            </p>
-            <Link href="/pass" className="btn-outline btn-sm mt-3 inline-flex">
-              패스 둘러보기
-            </Link>
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {(orders ?? []).map((o) => {
-              const pass = o.subscription_passes as unknown as
-                | {
-                    name: string;
-                    monthly_product: string | null;
-                    monthly_drink_quota: number;
-                    duration_months: number;
-                  }
-                | null;
-              return (
-                <li key={o.id} className="card">
-                  <div className="flex justify-between items-start gap-3">
-                    <div>
-                      <div className="font-semibold text-[var(--brand-strong)]">
-                        {pass?.name ?? "구독 패스"}
-                      </div>
-                      <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
-                        {o.started_on} ~ {o.expires_on}
-                      </div>
-                    </div>
-                    <span
-                      className={
-                        o.status === "active"
-                          ? "chip"
-                          : "chip bg-[var(--surface-2)] text-[var(--foreground-mute)]"
-                      }
-                    >
-                      {o.status}
-                    </span>
-                  </div>
-                  {pass && (
-                    <p className="mt-3 text-sm text-[var(--foreground-soft)]">
-                      매월 <b className="text-[var(--brand-strong)]">{pass.monthly_product}</b> 1개 + 음료 쿠폰 {pass.monthly_drink_quota}장
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
     </div>
   );
 }
