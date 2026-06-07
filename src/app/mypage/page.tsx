@@ -87,7 +87,8 @@ export default async function MyPage() {
                 {/* 수정 버튼 */}
                 <Link
                   href={`/mypage/dogs/${d.id}/edit`}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-xl bg-white/80 flex items-center justify-center text-[var(--foreground-mute)] hover:text-[var(--brand)]"
+                  className="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-[var(--brand-strong)] hover:bg-[var(--brand-soft)] transition-colors"
+                  aria-label={`${d.name} 수정`}
                 >
                   <Pencil className="w-3.5 h-3.5" />
                 </Link>
