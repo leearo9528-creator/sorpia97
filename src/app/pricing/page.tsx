@@ -166,27 +166,60 @@ export default function PricingPage() {
               <span className="font-semibold text-[var(--brand-strong)]">셀프목욕</span>
               <span className="inline-flex items-center rounded-lg bg-[var(--brand)] text-white text-[10px] font-bold px-2 py-0.5 ml-1">BATH</span>
             </div>
+
+            {/* 요금표 */}
             <div className="divide-y divide-[var(--line)]">
               {[
-                { label: "소형견 (7kg 이하)", sub: "1시간", price: "7,000원" },
-                { label: "중형견 (15kg 이하)", sub: "1시간", price: "15,000원" },
-                { label: "대형견 (30kg 이하)", sub: "1시간", price: "25,000원" },
-                { label: "대형견 (30kg 초과)", sub: "2시간", price: "35,000원" },
-              ].map(({ label, sub, price }) => (
-                <div key={label} className="flex items-center justify-between px-4 py-3.5">
+                { label: "소형견", kg: "7kg 이하", time: "1시간", price: "7,000원" },
+                { label: "중형견", kg: "15kg 이하", time: "1시간", price: "15,000원" },
+                { label: "대형견", kg: "30kg 이하", time: "1시간", price: "25,000원" },
+                { label: "대형견", kg: "30kg 초과", time: "2시간", price: "35,000원" },
+              ].map(({ label, kg, time, price }) => (
+                <div key={kg} className="flex items-center justify-between px-4 py-3.5">
                   <div>
-                    <span className="text-sm font-medium">{label}</span>
-                    <span className="ml-2 text-xs text-[var(--foreground-mute)]">{sub}</span>
+                    <span className="text-sm font-semibold text-[var(--brand-strong)]">{label}</span>
+                    <span className="ml-1.5 text-xs text-[var(--foreground-mute)]">({kg})</span>
+                    <span className="ml-2 text-[11px] bg-[var(--brand-soft)] text-[var(--brand-strong)] rounded-full px-1.5 py-0.5 font-medium">{time}</span>
                   </div>
                   <span className="font-bold text-[var(--brand-strong)]">{price}</span>
                 </div>
               ))}
             </div>
-            <div className="px-4 py-3 border-t border-[var(--line)] space-y-1">
-              <p className="text-[11px] font-semibold text-[var(--foreground-mute)]">포함</p>
-              <p className="text-xs text-[var(--foreground-soft)]">하이포닉 샴푸 · 일회용 수건 (대형견 2장)</p>
-              <p className="text-[11px] font-semibold text-[var(--foreground-mute)] mt-2">추가 선택</p>
-              <p className="text-xs text-[var(--foreground-soft)]">일회용 우비 3,000원 · 디얼스코 머드팩 8,500원 · 추가 수건 1,000원</p>
+
+            {/* 제공품목 */}
+            <div className="px-4 py-3 border-t border-[var(--line)] bg-[var(--brand-soft)]/30 space-y-1.5">
+              <p className="text-[11px] font-bold text-[var(--brand-strong)] uppercase tracking-wider mb-2">제공품목</p>
+              {[
+                "하이포닉 샴푸 kg당 정량 + 20ml",
+                "일회용 수건 1장 (대형견 2장)",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]">
+                  <Check className="w-3.5 h-3.5 text-[var(--brand)] shrink-0" />
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            {/* 추가품목 */}
+            <div className="border-t border-[var(--line)]">
+              <div className="px-4 py-2.5 bg-[var(--surface-2)]">
+                <span className="text-[11px] font-bold text-[var(--foreground-mute)] uppercase tracking-wider">추가품목</span>
+              </div>
+              <div className="divide-y divide-[var(--line)]">
+                {[
+                  { label: "일회용 우비", sub: "털 붙는 것 방지", price: "3,000원" },
+                  { label: "디얼스코 머드팩", sub: "", price: "8,500원" },
+                  { label: "추가 일회용 수건", sub: "", price: "1,000원" },
+                ].map(({ label, sub, price }) => (
+                  <div key={label} className="flex items-center justify-between px-4 py-3">
+                    <div>
+                      <span className="text-sm font-medium">{label}</span>
+                      {sub && <span className="ml-1.5 text-xs text-[var(--foreground-mute)]">{sub}</span>}
+                    </div>
+                    <span className="font-semibold text-[var(--foreground)]">{price}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
