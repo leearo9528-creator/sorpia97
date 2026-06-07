@@ -5,6 +5,7 @@ create or replace function public.get_monthly_ranking(p_year int, p_month int)
 returns table(
   profile_id uuid,
   display_name text,
+  dog_names  text,
   visit_count bigint,
   dog_count  bigint
 )
@@ -16,7 +17,9 @@ as $$
   select
     v.profile_id,
     coalesce(p.display_name, '회원') as display_name,
-    count(distinct v.id)::bigint                         as visit_count,
+    (select string_agg(d.name, ', ' order by d.created_at)
+     from public.dogs d where d.owner_id = v.profile_id) as dog_names,
+    count(distinct v.id)::bigint as visit_count,
     (select count(*) from public.dogs d where d.owner_id = v.profile_id)::bigint as dog_count
   from public.visits v
   join public.profiles p on p.id = v.profile_id
@@ -25,7 +28,7 @@ as $$
     and extract(month from v.visited_at at time zone 'Asia/Seoul') = p_month
   group by v.profile_id, p.display_name
   order by visit_count desc, dog_count desc
-  limit 50;
+  limit 5;
 $$;
 
 grant execute on function public.get_monthly_ranking(int, int) to anon, authenticated;

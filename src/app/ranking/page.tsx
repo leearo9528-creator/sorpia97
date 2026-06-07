@@ -4,9 +4,9 @@ import { Trophy, Medal, Award, Crown } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 const PRIZES = [
-  { rank: 1, label: "1등", prize: 50000, Icon: Crown,  color: "text-[#d4a017]" },
-  { rank: 2, label: "2등", prize: 30000, Icon: Medal,  color: "text-[#9aa1a8]" },
-  { rank: 3, label: "3등", prize: 10000, Icon: Award,  color: "text-[#cd7f32]" },
+  { rank: 1, label: "1등", prize: 50000, Icon: Crown, color: "text-[#d4a017]" },
+  { rank: 2, label: "2등", prize: 30000, Icon: Medal, color: "text-[#9aa1a8]" },
+  { rank: 3, label: "3등", prize: 10000, Icon: Award, color: "text-[#cd7f32]" },
 ];
 
 export default async function RankingPage() {
@@ -15,7 +15,7 @@ export default async function RankingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const now = new Date();
+  const now   = new Date();
   const year  = now.getFullYear();
   const month = now.getMonth() + 1;
 
@@ -24,7 +24,13 @@ export default async function RankingPage() {
     p_month: month,
   });
 
-  const sorted = (rows ?? []) as { profile_id: string; display_name: string; visit_count: number; dog_count: number }[];
+  const sorted = (rows ?? []) as {
+    profile_id: string;
+    display_name: string;
+    dog_names: string | null;
+    visit_count: number;
+    dog_count: number;
+  }[];
 
   const myEntry = user ? sorted.find((s) => s.profile_id === user.id) ?? null : null;
   const myRank  = myEntry ? sorted.indexOf(myEntry) + 1 : null;
@@ -49,9 +55,7 @@ export default async function RankingPage() {
         {PRIZES.map(({ rank, label, prize, Icon, color }) => (
           <div key={rank} className="card text-center !p-4">
             <Icon className={`w-7 h-7 mx-auto ${color}`} />
-            <div className="mt-2 text-xs font-semibold text-[var(--foreground-mute)]">
-              {label}
-            </div>
+            <div className="mt-2 text-xs font-semibold text-[var(--foreground-mute)]">{label}</div>
             <div className="mt-0.5 font-bold text-[var(--brand-strong)]">
               {prize.toLocaleString()}원
             </div>
@@ -68,18 +72,20 @@ export default async function RankingPage() {
               {myRank ? `${myRank}위` : "기록 없음"}
             </div>
           </div>
-          <div className="text-right">
-            <div className="text-xs text-[var(--foreground-mute)]">이번 달 출석</div>
-            <div className="mt-1 text-2xl font-bold text-[var(--brand-strong)]">
-              {myEntry?.visit_count ?? 0}회
+          {myEntry && (
+            <div className="text-right">
+              <div className="text-xs text-[var(--foreground-mute)]">이번 달 출석</div>
+              <div className="mt-1 text-2xl font-bold text-[var(--brand-strong)]">
+                {myEntry.visit_count}회
+              </div>
             </div>
-          </div>
+          )}
         </section>
       )}
 
-      {/* 순위 리스트 */}
+      {/* TOP 5 */}
       <section>
-        <h2 className="h-section mb-3">TOP 50</h2>
+        <h2 className="h-section mb-3">TOP 5</h2>
         {sorted.length === 0 ? (
           <div className="card-flat text-center py-10 text-sm text-[var(--foreground-soft)]">
             아직 이번 달 출석 기록이 없어요.
@@ -87,8 +93,9 @@ export default async function RankingPage() {
         ) : (
           <ol className="card !p-0 divide-y divide-[var(--line)]">
             {sorted.map((s, i) => {
-              const rank  = i + 1;
-              const isMe  = user?.id === s.profile_id;
+              const rank = i + 1;
+              const isMe = user?.id === s.profile_id;
+              const label = s.dog_names ?? s.display_name;
               return (
                 <li
                   key={s.profile_id}
@@ -113,12 +120,9 @@ export default async function RankingPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[var(--brand-strong)] truncate">
-                      {s.display_name}
+                      {label}
                       {isMe && <span className="ml-2 text-[10px] chip">나</span>}
                     </div>
-                  </div>
-                  <div className="font-bold text-[var(--brand-strong)]">
-                    {s.visit_count}회
                   </div>
                 </li>
               );
