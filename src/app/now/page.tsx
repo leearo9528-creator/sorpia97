@@ -1,31 +1,15 @@
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Dog, PawPrint } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+type TodayDog = { id: string; name: string; photo_url: string | null };
+
 export default async function NowPage() {
   const supabase = await createClient();
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-
-  // 오늘 출석한 보호자 id 모으기
-  const { data: visits } = await supabase
-    .from("visits")
-    .select("profile_id")
-    .gte("visited_at", todayStart.toISOString());
-
-  const profileIds = Array.from(new Set((visits ?? []).map((v) => v.profile_id)));
-
-  // 그 보호자들의 강아지 조회
-  let dogs: { id: string; name: string; photo_url: string | null }[] = [];
-  if (profileIds.length > 0) {
-    const { data } = await supabase
-      .from("dogs")
-      .select("id,name,photo_url")
-      .in("owner_id", profileIds);
-    dogs = data ?? [];
-  }
+  const { data } = await supabase.rpc("get_today_dogs");
+  const dogs: TodayDog[] = (data ?? []) as TodayDog[];
 
   return (
     <div className="section py-5 md:py-10 space-y-5 pb-24">
@@ -51,14 +35,9 @@ export default async function NowPage() {
         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
           {dogs.map((d) => (
             <div key={d.id} className="card !p-2">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-[var(--surface-2)] flex items-center justify-center">
+              <div className="relative aspect-square rounded-2xl overflow-hidden bg-[var(--surface-2)] flex items-center justify-center">
                 {d.photo_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={d.photo_url}
-                    alt={d.name}
-                    className="w-full h-full object-cover"
-                  />
+                  <Image src={d.photo_url} alt={d.name} fill sizes="120px" className="object-cover" />
                 ) : (
                   <Dog className="w-7 h-7 text-[var(--foreground-mute)]" />
                 )}
