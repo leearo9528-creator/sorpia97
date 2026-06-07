@@ -5,6 +5,7 @@ import {
   Ticket,
   Dog,
   Gift,
+  ChevronRight,
 } from "lucide-react";
 
 export default async function MyPage() {
@@ -80,6 +81,12 @@ export default async function MyPage() {
             <p className="mt-1 text-xs text-[var(--foreground-soft)]">
               이달 방문 횟수 · 월 1위 5만원권 / 2위 3만원권 / 3위 1만원권
             </p>
+            <Link
+              href="/ranking"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[var(--brand)] hover:opacity-70"
+            >
+              랭킹 보러가기 <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
           <Gift className="w-7 h-7 text-[var(--accent)]" />
         </div>
