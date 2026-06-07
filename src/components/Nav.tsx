@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import { SignOutButton } from "./SignOutButton";
-import { Bell, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export async function Nav() {
   let user: { id: string; email?: string } | null = null;
@@ -61,12 +61,6 @@ export async function Nav() {
           )}
           {user ? (
             <>
-              <button
-                aria-label="알림"
-                className="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-[var(--surface-2)]"
-              >
-                <Bell className="w-5 h-5 text-[var(--foreground-soft)]" />
-              </button>
               <div className="hidden md:block">
                 <SignOutButton />
               </div>
