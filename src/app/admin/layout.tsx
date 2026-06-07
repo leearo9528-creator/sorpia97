@@ -9,6 +9,7 @@ const ADMIN_TABS = [
   { href: "/admin/passes", label: "구독 패스" },
   { href: "/admin/fields", label: "운동장 대관" },
   { href: "/admin/trekking", label: "트레킹 예약" },
+  { href: "/admin/menu", label: "메뉴 가격" },
   { href: "/admin/content", label: "콘텐츠" },
   { href: "/admin/announcements", label: "공지사항" },
 ];
