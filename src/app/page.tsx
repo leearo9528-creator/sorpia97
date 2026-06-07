@@ -9,8 +9,6 @@ import {
   PawPrint,
   Sparkles,
   ChevronRight,
-  Calendar,
-  MapPin,
   Building2,
   UtensilsCrossed,
 } from "lucide-react";
@@ -136,25 +134,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── 정보 ─────────────────────────────────────── */}
-      <section className="section space-y-3">
-        <ul className="card !p-0 divide-y divide-[var(--line)]">
-          <li className="flex items-start gap-3 px-4 py-3.5">
-            <MapPin className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
-            <div>
-              <div className="text-sm">{BRAND.address}</div>
-              <div className="text-xs text-[var(--foreground-mute)] mt-0.5">{BRAND.landmark}</div>
-            </div>
-          </li>
-          <li className="flex items-start gap-3 px-4 py-3.5">
-            <Calendar className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
-            <div className="text-sm space-y-0.5">
-              <div>{BRAND.hoursWeekday}</div>
-              <div>{BRAND.hoursWeekend}</div>
-              <div className="text-[var(--foreground-mute)]">{BRAND.closedDay}</div>
-            </div>
-          </li>
-        </ul>
+      {/* ── 전화 · 길찾기 ────────────────────────────── */}
+      <section className="section">
         <ContactActions />
       </section>
 
