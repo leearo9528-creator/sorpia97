@@ -148,10 +148,7 @@ export default async function Home() {
           </li>
           <li className="flex items-start gap-3 px-4 py-3.5">
             <Calendar className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
-            <div>
-              <div className="text-sm">{BRAND.hours}</div>
-              <div className="text-xs text-[var(--foreground-mute)] mt-0.5">{BRAND.notice}</div>
-            </div>
+            <div className="text-sm">{BRAND.hours}</div>
           </li>
         </ul>
         <ContactActions />
