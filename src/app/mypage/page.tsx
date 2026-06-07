@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { SignOutButton } from "@/components/SignOutButton";
 import {
   Stamp,
   Ticket,
@@ -71,7 +70,6 @@ export default async function MyPage() {
             {profile?.display_name ?? "회원"}님
           </div>
         </div>
-        <SignOutButton minimal />
       </div>
 
       {/* 출석 도장 — 메인 카드 */}
