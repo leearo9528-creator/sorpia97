@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { PhotoSlot } from "@/components/PhotoSlot";
 import { CopyAddress } from "@/components/CopyAddress";
+import { ContactActions } from "@/components/ContactActions";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import {
@@ -136,7 +137,7 @@ export default async function Home() {
       </section>
 
       {/* ── 정보 ─────────────────────────────────────── */}
-      <section className="section">
+      <section className="section space-y-3">
         <ul className="card !p-0 divide-y divide-[var(--line)]">
           <li className="flex items-start gap-3 px-4 py-3.5">
             <MapPin className="w-4 h-4 mt-0.5 text-[var(--brand)] shrink-0" />
@@ -153,6 +154,7 @@ export default async function Home() {
             </div>
           </li>
         </ul>
+        <ContactActions />
       </section>
 
     </div>

@@ -5,7 +5,9 @@ export const BRAND = {
   address: "경기도 동두천시 삼육사로 1802",
   area: "동두천 · 양주 · 의정부 · 남양주 · 포천",
   landmark: "동두천 놀자숲 후문 바로 앞",
-  phone: "010-0000-0000", // TODO: 실제 번호 입력
+  phone: "0507-1428-9515",
+  phoneRaw: "050714289515",
+  naverMapUrl: "https://map.naver.com/p/search/소르피아97",
   hours: "매일 오픈 (매주 월요일 휴무)",
   closedDay: "매주 월요일 휴무",
   notice: "매주 화요일은 수영장 물 교체일 · 오전 방문 시 수영장 이용 대기 가능",
