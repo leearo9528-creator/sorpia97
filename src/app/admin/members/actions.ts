@@ -205,6 +205,10 @@ export async function addDogAction(formData: FormData) {
   const profileId = String(formData.get("profile_id") ?? "");
   const name      = String(formData.get("name") ?? "").trim();
   const birthday  = String(formData.get("birthday") ?? "").trim() || null;
+  const breed     = String(formData.get("breed") ?? "").trim() || null;
+  const weightRaw = String(formData.get("weight") ?? "").trim();
+  const gender    = String(formData.get("gender") ?? "").trim() || null;
+  const weight    = weightRaw ? parseFloat(weightRaw) : null;
   const q         = String(formData.get("q") ?? "");
 
   if (!name) back(q, profileId, { error: "강아지 이름을 입력해 주세요." });
@@ -212,7 +216,7 @@ export async function addDogAction(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("dogs")
-    .insert({ owner_id: profileId, name, birthday });
+    .insert({ owner_id: profileId, name, birthday, breed, weight, gender });
 
   if (error) back(q, profileId, { error: error.message });
   back(q, profileId, { message: `'${name}' 강아지가 추가됐습니다.` });
@@ -224,6 +228,10 @@ export async function updateDogAction(formData: FormData) {
   const profileId = String(formData.get("profile_id") ?? "");
   const name      = String(formData.get("name") ?? "").trim();
   const birthday  = String(formData.get("birthday") ?? "").trim() || null;
+  const breed     = String(formData.get("breed") ?? "").trim() || null;
+  const weightRaw = String(formData.get("weight") ?? "").trim();
+  const gender    = String(formData.get("gender") ?? "").trim() || null;
+  const weight    = weightRaw ? parseFloat(weightRaw) : null;
   const q         = String(formData.get("q") ?? "");
 
   if (!name) back(q, profileId, { error: "강아지 이름을 입력해 주세요." });
@@ -231,7 +239,7 @@ export async function updateDogAction(formData: FormData) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("dogs")
-    .update({ name, birthday })
+    .update({ name, birthday, breed, weight, gender })
     .eq("id", dogId);
 
   if (error) back(q, profileId, { error: error.message });

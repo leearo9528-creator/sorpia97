@@ -70,7 +70,7 @@ export default async function MembersPage({
       edit
         ? supabase
             .from("dogs")
-            .select("id,name,birthday")
+            .select("id,name,birthday,breed,weight,gender")
             .eq("owner_id", edit)
             .order("created_at")
         : { data: null },
@@ -245,61 +245,50 @@ export default async function MembersPage({
                     <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider mb-3">
                       강아지 <span className="font-normal text-[var(--foreground-mute)] normal-case">{dogs.length}마리</span>
                     </p>
-                    <div className="grid gap-2">
+                    <div className="grid gap-3">
                       {dogs.map((dog) => (
-                        <form key={dog.id} action={updateDogAction} className="flex items-center gap-2 flex-wrap">
-                          <input type="hidden" name="dog_id" value={dog.id} />
-                          <input type="hidden" name="profile_id" value={m.id} />
-                          <input type="hidden" name="q" value={q ?? ""} />
-                          <Dog className="w-4 h-4 text-[var(--brand)] shrink-0" />
-                          <input
-                            name="name"
-                            defaultValue={dog.name}
-                            required
-                            placeholder="이름"
-                            className="input !min-h-0 py-1 text-sm w-28"
-                          />
-                          <input
-                            name="birthday"
-                            type="date"
-                            defaultValue={dog.birthday ?? ""}
-                            className="input !min-h-0 py-1 text-sm w-36"
-                          />
-                          <button type="submit" className="btn-outline btn-sm">저장</button>
-                          {/* 삭제 */}
-                          <button
-                            type="button"
-                            formAction={deleteDogAction.bind(null) as never}
-                            onClick={async (e) => {
-                              const f = new FormData();
-                              f.set("dog_id", dog.id);
-                              f.set("profile_id", m.id);
-                              f.set("q", q ?? "");
-                              // handled by separate form below
-                            }}
-                            className="hidden"
-                          />
-                        </form>
-                      ))}
-                      {dogs.map((dog) => (
-                        <form key={`del-${dog.id}`} action={deleteDogAction} className="hidden">
-                          <input type="hidden" name="dog_id" value={dog.id} />
-                          <input type="hidden" name="profile_id" value={m.id} />
-                          <input type="hidden" name="q" value={q ?? ""} />
-                        </form>
-                      ))}
-                    </div>
-                    {/* 개별 삭제 버튼 (별도 폼) */}
-                    <div className="grid gap-2 mt-1">
-                      {dogs.map((dog) => (
-                        <div key={`row-${dog.id}`} className="flex items-center gap-2">
-                          <span className="text-sm text-[var(--brand-strong)] w-28 truncate">{dog.name}</span>
-                          <form action={deleteDogAction}>
+                        <div key={dog.id} className="rounded-xl border border-[var(--line)] p-3 grid gap-2">
+                          <form action={updateDogAction} className="grid gap-2">
                             <input type="hidden" name="dog_id" value={dog.id} />
                             <input type="hidden" name="profile_id" value={m.id} />
                             <input type="hidden" name="q" value={q ?? ""} />
-                            <button type="submit" className="inline-flex items-center justify-center w-6 h-6 rounded-lg hover:bg-red-100 text-red-400 hover:text-red-600">
-                              <Trash2 className="w-3.5 h-3.5" />
+                            <div className="flex gap-2 flex-wrap">
+                              <input name="name" defaultValue={dog.name} required placeholder="이름 *"
+                                className="input !min-h-0 py-1 text-sm w-24" />
+                              <input name="breed" defaultValue={(dog as { breed?: string }).breed ?? ""}
+                                placeholder="견종"
+                                className="input !min-h-0 py-1 text-sm w-24" />
+                              <input name="weight" type="number" step="0.1" min="0"
+                                defaultValue={(dog as { weight?: number }).weight ?? ""}
+                                placeholder="kg"
+                                className="input !min-h-0 py-1 text-sm w-20" />
+                              <input name="birthday" type="date"
+                                defaultValue={(dog as { birthday?: string }).birthday ?? ""}
+                                className="input !min-h-0 py-1 text-sm w-36" />
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <span className="text-xs text-[var(--foreground-mute)]">성별</span>
+                              {["공주님", "왕자님"].map((g) => (
+                                <label key={g} className="flex items-center gap-1 text-sm cursor-pointer">
+                                  <input type="radio" name="gender" value={g}
+                                    defaultChecked={(dog as { gender?: string }).gender === g} />
+                                  {g}
+                                </label>
+                              ))}
+                              <label className="flex items-center gap-1 text-sm cursor-pointer text-[var(--foreground-mute)]">
+                                <input type="radio" name="gender" value=""
+                                  defaultChecked={!(dog as { gender?: string }).gender} />
+                                미입력
+                              </label>
+                              <button type="submit" className="btn-outline btn-sm ml-auto">저장</button>
+                            </div>
+                          </form>
+                          <form action={deleteDogAction} className="flex justify-end">
+                            <input type="hidden" name="dog_id" value={dog.id} />
+                            <input type="hidden" name="profile_id" value={m.id} />
+                            <input type="hidden" name="q" value={q ?? ""} />
+                            <button type="submit" className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-700">
+                              <Trash2 className="w-3 h-3" /> 삭제
                             </button>
                           </form>
                         </div>
@@ -315,7 +304,17 @@ export default async function MembersPage({
                         <input type="hidden" name="q" value={q ?? ""} />
                         <div className="flex gap-2 flex-wrap">
                           <input name="name" required placeholder="이름 *" className="input !min-h-0 py-1.5 text-sm flex-1" />
+                          <input name="breed" placeholder="견종" className="input !min-h-0 py-1.5 text-sm w-24" />
+                          <input name="weight" type="number" step="0.1" min="0" placeholder="kg" className="input !min-h-0 py-1.5 text-sm w-20" />
                           <input name="birthday" type="date" className="input !min-h-0 py-1.5 text-sm" />
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-[var(--foreground-mute)]">성별</span>
+                          {["공주님", "왕자님"].map((g) => (
+                            <label key={g} className="flex items-center gap-1 text-sm cursor-pointer">
+                              <input type="radio" name="gender" value={g} /> {g}
+                            </label>
+                          ))}
                         </div>
                         <button type="submit" className="btn-primary btn-sm justify-self-start">추가</button>
                       </form>
