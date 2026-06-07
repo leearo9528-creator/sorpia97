@@ -61,45 +61,34 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* 패키지 요금표 */}
+          {/* 패키지 요금표 — 체급별 세로 카드 */}
           <div className="card !p-0 overflow-hidden">
             <div className="px-4 py-3 bg-[var(--accent-soft)] border-b border-[var(--line)]">
               <p className="text-sm font-bold text-[var(--accent-deep)]">패키지</p>
               <p className="text-xs text-[var(--accent-deep)]/70 mt-0.5">목욕 패키지 → 원하는 목욕 시간 예약 선점 가능</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[320px]">
-                <thead>
-                  <tr className="border-b border-[var(--line)] bg-[var(--surface-2)]">
-                    <th className="text-left px-4 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">구분</th>
-                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">7kg</th>
-                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">15kg</th>
-                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">30kg</th>
-                    <th className="text-center px-3 py-2.5 text-xs font-semibold text-[var(--foreground-mute)]">30kg+</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--line)]">
-                  <tr>
-                    <td className="px-4 py-3 text-sm font-medium">입장+수영</td>
-                    <td className="px-3 py-3 text-center font-semibold text-[var(--brand-strong)]" colSpan={2}>10,000원</td>
-                    <td className="px-3 py-3 text-center font-semibold text-[var(--brand-strong)]" colSpan={2}>20,000원</td>
-                  </tr>
-                  <tr className="bg-[var(--accent-soft)]/50">
-                    <td className="px-4 py-3 text-sm font-bold text-[var(--accent-deep)]">입장+수영+목욕</td>
-                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">15,000</td>
-                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">22,000</td>
-                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">40,000</td>
-                    <td className="px-3 py-3 text-center font-bold text-[var(--accent-deep)]">45,000</td>
-                  </tr>
-                  <tr className="text-[var(--foreground-mute)]">
-                    <td className="px-4 py-2 text-xs">원가</td>
-                    <td className="px-3 py-2 text-center text-xs line-through">17,000</td>
-                    <td className="px-3 py-2 text-center text-xs line-through">25,000</td>
-                    <td className="px-3 py-2 text-center text-xs line-through">45,000</td>
-                    <td className="px-3 py-2 text-center text-xs line-through">55,000</td>
-                  </tr>
-                </tbody>
-              </table>
+            <div className="divide-y divide-[var(--line)]">
+              {[
+                { kg: "7kg 이하",   swim: "10,000원", bath: "15,000원", bathOrig: "17,000원" },
+                { kg: "15kg 이하",  swim: "10,000원", bath: "22,000원", bathOrig: "25,000원" },
+                { kg: "30kg 이하",  swim: "20,000원", bath: "40,000원", bathOrig: "45,000원" },
+                { kg: "30kg 초과",  swim: "20,000원", bath: "45,000원", bathOrig: "55,000원" },
+              ].map(({ kg, swim, bath, bathOrig }) => (
+                <div key={kg} className="px-4 py-3.5 space-y-2">
+                  <p className="text-xs font-bold text-[var(--foreground-mute)] uppercase tracking-wider">{kg}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[var(--foreground-soft)]">입장 + 수영</span>
+                    <span className="font-semibold text-[var(--brand-strong)]">{swim}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-[var(--accent-deep)]">입장 + 수영 + 목욕</span>
+                    <div className="text-right">
+                      <span className="font-bold text-[var(--accent-deep)]">{bath}</span>
+                      <span className="ml-2 text-xs text-[var(--foreground-mute)] line-through">{bathOrig}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
             <div className="flex items-start gap-2 px-4 py-3 border-t border-[var(--line)] bg-red-50">
               <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
@@ -211,18 +200,15 @@ export default function PricingPage() {
             <div className="divide-y divide-[var(--line)]">
               <div className="flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm font-medium">15kg 이하</span>
-                <span className="font-bold text-[var(--brand-strong)]">입장료 포함</span>
+                <span className="font-bold text-[var(--brand-strong)]">5,000원</span>
               </div>
               <div className="flex items-center justify-between px-4 py-3.5">
-                <div>
-                  <span className="text-sm font-medium">15kg 초과</span>
-                  <span className="ml-2 text-xs text-[var(--foreground-mute)]">입장+수영 패키지</span>
-                </div>
-                <span className="font-bold text-[var(--brand-strong)]">20,000원</span>
+                <span className="text-sm font-medium">15kg 초과</span>
+                <span className="font-bold text-[var(--brand-strong)]">10,000원</span>
               </div>
               <div className="px-4 py-3 bg-[var(--surface-2)]">
                 <p className="text-xs text-[var(--foreground-mute)]">
-                  매주 화요일은 수영장 물 교체일 · 오전 방문 시 수영장 이용 대기 가능
+                  운동장 입장료와 별도 · 매주 화요일은 수영장 물 교체일 · 오전 방문 시 수영장 이용 대기 가능
                 </p>
               </div>
             </div>
