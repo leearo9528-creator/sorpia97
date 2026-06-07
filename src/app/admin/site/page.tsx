@@ -23,10 +23,11 @@ export default async function AdminSitePage({
   const { data: photos } = await supabase
     .from("site_photos")
     .select("id,slot,url,sort_order")
-    .eq("slot", "homepage")
+    .in("slot", ["homepage", "map_layout"])
     .order("sort_order");
 
-  const homePhotos = photos ?? [];
+  const homePhotos = (photos ?? []).filter((p: { slot: string }) => p.slot === "homepage");
+  const layoutPhotos = (photos ?? []).filter((p: { slot: string }) => p.slot === "map_layout");
 
   return (
     <div className="grid gap-8 max-w-xl">
@@ -95,6 +96,56 @@ export default async function AdminSitePage({
           />
           <button type="submit" className="btn-primary btn-sm shrink-0 inline-flex items-center gap-1">
             <Plus className="w-3.5 h-3.5" /> 사진 추가
+          </button>
+        </form>
+      </div>
+
+      {/* 배치도 */}
+      <div className="rounded-2xl border border-[var(--line)] p-5 grid gap-4">
+        <div>
+          <p className="font-semibold text-[var(--brand-strong)]">소르피아 배치도</p>
+          <p className="text-xs text-[var(--foreground-mute)] mt-0.5">
+            홈 하단에 표시 · 1장만 사용 · 업로드 시 자동 교체
+          </p>
+        </div>
+
+        {layoutPhotos.length === 0 ? (
+          <div className="w-full aspect-[4/3] rounded-2xl bg-[var(--surface-2)] border border-dashed border-[var(--ring)] flex flex-col items-center justify-center gap-2 text-[var(--foreground-mute)]">
+            <ImageIcon className="w-8 h-8 opacity-40" strokeWidth={1.5} />
+            <span className="text-xs">배치도 없음</span>
+          </div>
+        ) : (
+          <div className="relative group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={layoutPhotos[0].url}
+              alt="배치도"
+              className="w-full rounded-2xl object-contain border border-[var(--line)]"
+            />
+            <form action={deleteSitePhotoAction} className="absolute top-2 right-2">
+              <input type="hidden" name="id" value={layoutPhotos[0].id} />
+              <button
+                type="submit"
+                className="inline-flex items-center gap-1 rounded-xl bg-white/90 px-2 py-1 text-xs text-red-500 hover:bg-red-50 shadow-sm"
+              >
+                <Trash2 className="w-3 h-3" /> 삭제
+              </button>
+            </form>
+          </div>
+        )}
+
+        <form action={uploadSitePhotoAction} encType="multipart/form-data"
+          className="flex items-center gap-3 flex-wrap border-t border-[var(--line)]/60 pt-3">
+          <input type="hidden" name="slot" value="map_layout" />
+          <input
+            type="file"
+            name="photo"
+            accept="image/*"
+            required
+            className="input file:mr-3 file:rounded-full file:border-0 file:bg-[var(--brand)] file:text-white file:px-3 file:py-1 file:text-xs file:font-semibold cursor-pointer flex-1"
+          />
+          <button type="submit" className="btn-primary btn-sm shrink-0 inline-flex items-center gap-1">
+            <Plus className="w-3.5 h-3.5" /> {layoutPhotos.length > 0 ? "교체" : "업로드"}
           </button>
         </form>
       </div>
