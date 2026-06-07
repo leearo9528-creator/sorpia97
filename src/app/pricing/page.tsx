@@ -69,78 +69,58 @@ export default function PricingPage() {
             보호자는 아래 중 하나를 선택해 주세요
           </p>
 
-          {/* 옵션 A: 음료 */}
-          <div className="card border-2 border-[var(--brand-soft)]">
-            <div className="flex items-start gap-3">
-              <Coffee className="w-5 h-5 text-[var(--brand)] shrink-0 mt-0.5" />
-              <div>
-                <p className="font-bold text-[var(--brand-strong)]">A. 보호자 1인 음료 1잔</p>
-                <p className="mt-1 text-sm text-[var(--foreground-soft)]">
-                  카페에서 음료 1잔 이상 주문해 주세요.
-                </p>
-                <Link
-                  href="/menu"
-                  className="mt-2 inline-flex items-center gap-1 text-xs text-[var(--brand)] font-semibold"
-                >
-                  메뉴 보기 <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            {/* 옵션 A: 음료 */}
+            <div className="card border-2 border-[var(--brand-soft)] flex flex-col gap-2">
+              <Coffee className="w-5 h-5 text-[var(--brand)]" />
+              <p className="font-bold text-[var(--brand-strong)] text-sm leading-snug">카페 음료 1잔</p>
+              <p className="text-xs text-[var(--foreground-soft)] flex-1">카페에서 음료 1잔 이상 주문</p>
+              <Link
+                href="/menu"
+                className="inline-flex items-center gap-0.5 text-xs text-[var(--brand)] font-semibold mt-auto"
+              >
+                메뉴 보기 <ChevronRight className="w-3 h-3" />
+              </Link>
+            </div>
+
+            {/* 옵션 B: 바베큐 */}
+            <div className="card border-2 border-[var(--accent-soft)] flex flex-col gap-2">
+              <Flame className="w-5 h-5 text-[var(--accent-deep)]" />
+              <p className="font-bold text-[var(--accent-deep)] text-sm leading-snug">바베큐<br />1인 39,000원</p>
+              <p className="text-xs text-[var(--foreground-soft)] flex-1">에어컨 텐트 3시간 + 고기 + 음료 포함</p>
             </div>
           </div>
 
-          {/* OR 구분선 */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[var(--line)]" />
-            <span className="text-xs font-bold text-[var(--foreground-mute)] px-2">또는</span>
-            <div className="flex-1 h-px bg-[var(--line)]" />
-          </div>
-
-          {/* 옵션 B: 바베큐 */}
-          <div className="card !p-0 overflow-hidden border-2 border-[var(--accent-soft)]">
-            <div className="px-4 py-3 bg-[var(--accent-soft)] border-b border-[var(--line)]">
-              <div className="flex items-center gap-2">
-                <Flame className="w-4 h-4 text-[var(--accent-deep)]" />
-                <span className="font-bold text-[var(--accent-deep)]">B. 바베큐 1인 39,000원</span>
-              </div>
-              <p className="text-xs text-[var(--accent-deep)]/80 mt-0.5">
-                강아지 입장료 + 바베큐로 즐기는 옵션
-              </p>
+          {/* 바베큐 구성 상세 */}
+          <div className="card !p-0 overflow-hidden">
+            <div className="px-4 py-2.5 bg-[var(--accent-soft)] border-b border-[var(--line)]">
+              <span className="text-xs font-semibold text-[var(--accent-deep)]">바베큐 1인 구성</span>
             </div>
-            <div className="px-4 py-3 space-y-1.5">
-              {[
-                "국내산 암돼지고기 250g + 그릴드 소시지 + 찰옥수수 + 모둠채소",
-                "무한리필 반찬 · 된장/김치/부대찌개 택 1",
-                "아메리카노 1잔 증정 (오픈이벤트, 다른 음료 변경 시 +1,000원)",
-                "무인편의점 · 카페 & 운동장 무제한 · 포토존 즉석인화",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-2 text-sm text-[var(--foreground-soft)]">
-                  <Check className="w-4 h-4 text-[var(--accent-deep)] shrink-0 mt-0.5" />
-                  {item}
-                </div>
-              ))}
-            </div>
-
-            {/* 바베큐 이용 방법 */}
-            <div className="border-t border-[var(--line)]">
-              <div className="px-4 py-2.5 bg-[var(--surface-2)]">
-                <span className="text-[11px] font-semibold text-[var(--foreground-mute)] uppercase tracking-wider">이용 방법 (장갑 필수 착용)</span>
-              </div>
-              <ol className="divide-y divide-[var(--line)]">
-                {[
-                  { n: 1, main: '화로에 "화로불솟"을 넣고 토치로 점화', sub: '30초 내 점화됩니다. 과하게 붙이면 위험!' },
-                  { n: 2, main: '5분 후 석쇠 올리고 구이 시작', sub: '추천 순서: 고기 → 소시지 → 김치 → 버섯 → 파' },
-                  { n: 3, main: '텐트 이용시간 2시간', sub: '10분 전 정리정돈 + 분리수거 후 용품 반납' },
-                  { n: 4, main: '카페 복귀 → 용품 반납 → 음료 수령 → 운동장 계속 이용', sub: '' },
-                ].map(({ n, main, sub }) => (
-                  <div key={n} className="flex items-start gap-3 px-4 py-3">
-                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--accent-deep)] text-white text-[10px] font-bold shrink-0 mt-0.5">{n}</span>
-                    <div>
-                      <p className="text-sm font-medium text-[var(--foreground)]">{main}</p>
-                      {sub && <p className="text-xs text-[var(--foreground-mute)] mt-0.5">{sub}</p>}
-                    </div>
+            <div className="divide-y divide-[var(--line)]">
+              <div className="px-4 py-3 space-y-1.5">
+                <p className="text-[11px] font-semibold text-[var(--foreground-mute)]">이용권</p>
+                {["에어컨 텐트 3시간 이용권", "아메리카노 1잔", "운동장 무제한"].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]">
+                    <Check className="w-3.5 h-3.5 text-[var(--accent-deep)] shrink-0" />
+                    {item}
                   </div>
                 ))}
-              </ol>
+              </div>
+              <div className="px-4 py-3 space-y-1.5">
+                <p className="text-[11px] font-semibold text-[var(--foreground-mute)]">식사 구성</p>
+                {[
+                  "국내산 암돼지 250g 이상",
+                  "그릴드 소시지 + 구워 먹는 찰옥수수",
+                  "모둠 채소 (버섯, 대파 등)",
+                  "무한리필 반찬 (무쌈, 김치, 무말랭이, 마늘)",
+                  "한강라면 2인 1개 제공",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-[var(--foreground-soft)]">
+                    <Check className="w-3.5 h-3.5 text-[var(--accent-deep)] shrink-0" />
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
