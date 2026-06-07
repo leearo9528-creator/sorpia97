@@ -15,36 +15,21 @@ export default async function RankingPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 이번 달 시작일
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const year  = now.getFullYear();
+  const month = now.getMonth() + 1;
 
-  const { data: rows } = await supabase
-    .from("visits")
-    .select("profile_id,profiles(display_name)")
-    .gte("visited_at", monthStart);
+  const { data: rows } = await supabase.rpc("get_monthly_ranking", {
+    p_year: year,
+    p_month: month,
+  });
 
-  // 보호자 기준 집계
-  const counts = new Map<string, { name: string; count: number }>();
-  for (const r of rows ?? []) {
-    const p = (r as unknown as { profiles: { display_name: string } | null }).profiles;
-    const key = r.profile_id;
-    const prev = counts.get(key);
-    counts.set(key, {
-      name: p?.display_name ?? "회원",
-      count: (prev?.count ?? 0) + 1,
-    });
-  }
-  const sorted = [...counts.entries()]
-    .map(([id, v]) => ({ id, ...v }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 50);
+  const sorted = (rows ?? []) as { profile_id: string; display_name: string; visit_count: number }[];
 
-  const me = user ? counts.get(user.id) : null;
-  const myRank =
-    user && me ? sorted.findIndex((s) => s.id === user.id) + 1 : null;
+  const myEntry = user ? sorted.find((s) => s.profile_id === user.id) ?? null : null;
+  const myRank  = myEntry ? sorted.indexOf(myEntry) + 1 : null;
 
-  const month = `${now.getFullYear()}년 ${now.getMonth() + 1}월`;
+  const monthLabel = `${year}년 ${month}월`;
 
   return (
     <div className="section py-5 md:py-10 space-y-6 pb-24">
@@ -52,7 +37,7 @@ export default async function RankingPage() {
         <span className="eyebrow">Ranking</span>
         <h1 className="mt-2 h-display flex items-center gap-2">
           <Trophy className="w-7 h-7 text-[var(--accent-deep)]" />
-          {month} 랭킹
+          {monthLabel} 랭킹
         </h1>
         <p className="mt-2 text-sm text-[var(--foreground-soft)]">
           매달 1일 출석 횟수 기준 TOP 3에게 상금을 드려요.
@@ -86,7 +71,7 @@ export default async function RankingPage() {
           <div className="text-right">
             <div className="text-xs text-[var(--foreground-mute)]">이번 달 출석</div>
             <div className="mt-1 text-2xl font-bold text-[var(--brand-strong)]">
-              {me?.count ?? 0}회
+              {myEntry?.visit_count ?? 0}회
             </div>
           </div>
         </section>
@@ -102,11 +87,11 @@ export default async function RankingPage() {
         ) : (
           <ol className="card !p-0 divide-y divide-[var(--line)]">
             {sorted.map((s, i) => {
-              const rank = i + 1;
-              const isMe = user?.id === s.id;
+              const rank  = i + 1;
+              const isMe  = user?.id === s.profile_id;
               return (
                 <li
-                  key={s.id}
+                  key={s.profile_id}
                   className={
                     "flex items-center gap-3 px-4 py-3 " +
                     (isMe ? "bg-[var(--brand-soft)]/40" : "")
@@ -128,14 +113,12 @@ export default async function RankingPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-[var(--brand-strong)] truncate">
-                      {s.name}
-                      {isMe && (
-                        <span className="ml-2 text-[10px] chip">나</span>
-                      )}
+                      {s.display_name}
+                      {isMe && <span className="ml-2 text-[10px] chip">나</span>}
                     </div>
                   </div>
                   <div className="font-bold text-[var(--brand-strong)]">
-                    {s.count}회
+                    {s.visit_count}회
                   </div>
                 </li>
               );
