@@ -48,7 +48,15 @@ export async function Nav() {
           )}
         </nav>
 
-        <NavMenu user={user} role={role} />
+        <div className="flex items-center gap-1">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[var(--brand)] text-white px-3 py-1.5 text-xs font-semibold hover:opacity-90 transition-opacity"
+          >
+            홈 바로가기
+          </Link>
+          <NavMenu user={user} role={role} />
+        </div>
       </div>
     </header>
   );

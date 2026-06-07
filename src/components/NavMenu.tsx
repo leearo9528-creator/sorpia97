@@ -56,12 +56,12 @@ export function NavMenu({ user, role }: Props) {
         <>
           {/* 딤 오버레이 */}
           <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setOpen(false)}
           />
 
           {/* 사이드 패널 */}
-          <div className="fixed right-0 top-0 bottom-0 z-50 w-72 bg-[var(--background)] shadow-2xl flex flex-col">
+          <div className="fixed right-0 top-0 bottom-0 z-50 w-72 shadow-2xl flex flex-col" style={{ backgroundColor: "#fbfaee" }}>
             {/* 헤더 */}
             <div className="flex items-center justify-between px-5 h-14 border-b border-[var(--line)] shrink-0">
               <span className="font-bold text-[var(--brand-strong)]">메뉴</span>
