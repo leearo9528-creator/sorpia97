@@ -12,9 +12,13 @@ export async function addDogAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const name = String(formData.get("dog_name") ?? "").trim();
+  const name     = String(formData.get("dog_name")    ?? "").trim();
   const birthday = String(formData.get("dog_birthday") ?? "").trim();
-  const photo = formData.get("dog_photo");
+  const breed    = String(formData.get("dog_breed")   ?? "").trim() || null;
+  const gender   = String(formData.get("dog_gender")  ?? "").trim() || null;
+  const weightRaw = String(formData.get("dog_weight") ?? "").trim();
+  const weight   = weightRaw ? parseFloat(weightRaw) : null;
+  const photo    = formData.get("dog_photo");
 
   if (!name) fail("강아지 이름을 입력해 주세요.");
 
@@ -35,6 +39,9 @@ export async function addDogAction(formData: FormData) {
     owner_id: user.id,
     name,
     birthday: birthday || null,
+    breed,
+    weight,
+    gender,
     photo_url: photoUrl,
   });
 

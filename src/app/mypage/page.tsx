@@ -32,7 +32,7 @@ export default async function MyPage() {
     { data: coupons },
   ] = await Promise.all([
     supabase.from("profiles").select("display_name,phone,email,role").eq("id", user.id).maybeSingle(),
-    supabase.from("dogs").select("id,name,birthday,photo_url").eq("owner_id", user.id),
+    supabase.from("dogs").select("id,name,birthday,photo_url,breed,weight,gender").eq("owner_id", user.id),
     supabase.from("visits").select("id", { count: "exact", head: true }).eq("profile_id", user.id),
     supabase
       .from("coupons")
@@ -135,8 +135,13 @@ export default async function MyPage() {
                 <div className="font-semibold text-[var(--brand-strong)] truncate">
                   {d.name}
                 </div>
+                {(d.gender || d.breed) && (
+                  <div className="text-[11px] text-[var(--foreground-mute)] mt-0.5 truncate">
+                    {[d.gender, d.breed].filter(Boolean).join(" · ")}
+                  </div>
+                )}
                 <div className="text-[11px] text-[var(--foreground-mute)] mt-0.5">
-                  {d.birthday ? `${d.birthday} 생` : "생일 미등록"}
+                  {d.weight ? `${d.weight}kg` : ""}{d.weight && d.birthday ? " · " : ""}{d.birthday ? `${d.birthday} 생` : (!d.weight ? "생일 미등록" : "")}
                 </div>
               </div>
             ))}

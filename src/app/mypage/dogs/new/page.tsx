@@ -42,10 +42,37 @@ export default async function AddDogPage({
             <label className="label">이름 <span className="text-red-500">*</span></label>
             <input className="input" name="dog_name" required />
           </div>
+
+          <div>
+            <label className="label">성별</label>
+            <div className="flex gap-4 mt-2">
+              {["공주님", "왕자님"].map((g) => (
+                <label key={g} className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="dog_gender" value={g} className="accent-[var(--brand)]" />
+                  <span className="text-sm">{g}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="label">견종 (선택)</label>
+            <input className="input" name="dog_breed" placeholder="예: 말티즈, 포메라니안" />
+          </div>
+
+          <div>
+            <label className="label">몸무게 (선택)</label>
+            <div className="relative">
+              <input className="input pr-8" type="number" step="0.1" min="0" name="dog_weight" placeholder="0.0" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-[var(--foreground-mute)]">kg</span>
+            </div>
+          </div>
+
           <div>
             <label className="label">생년월일 (선택)</label>
             <input className="input" type="date" name="dog_birthday" />
           </div>
+
           <div>
             <label className="label">사진 (선택)</label>
             <input
@@ -55,6 +82,7 @@ export default async function AddDogPage({
               accept="image/*"
             />
           </div>
+
           <button type="submit" className="btn-primary w-full">
             등록하기
           </button>
