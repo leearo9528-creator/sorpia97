@@ -140,47 +140,6 @@ export default function PricingPage() {
             </div>
           </div>
 
-          {/* OR 구분선 */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[var(--line)]" />
-            <span className="text-xs font-bold text-[var(--foreground-mute)] px-2">또는</span>
-            <div className="flex-1 h-px bg-[var(--line)]" />
-          </div>
-
-          {/* 캠프닉 불멍 */}
-          <div className="card !p-0 overflow-hidden border-2 border-[var(--brand-soft)]">
-            <div className="px-4 py-3 bg-[var(--brand-soft)] border-b border-[var(--line)]">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-lg">🔥</span>
-                <span className="font-bold text-[var(--brand-strong)]">캠프닉 통자작나무 불멍</span>
-                <span className="text-xs bg-[var(--brand)] text-white rounded-full px-2 py-0.5 font-semibold">2시간 텐트</span>
-              </div>
-              <p className="text-xs text-[var(--brand-strong)]/70 mt-0.5">
-                30,000원 + 보증금 10,000원 (반납 시 환불)
-              </p>
-            </div>
-            <div className="px-4 py-3 space-y-1.5">
-              {[
-                "통 자작나무 불멍 + 오로라 가루 + 토치 세트 포함",
-                "최대 이용 인원 4명",
-                "한강라면·음료·주류 — 카페 내 무인편의점 이용 가능",
-                "불멍 이용 고객은 카페 공간 이용 가능",
-              ].map((item) => (
-                <div key={item} className="flex items-start gap-2 text-sm text-[var(--foreground-soft)]">
-                  <Check className="w-4 h-4 text-[var(--brand)] shrink-0 mt-0.5" />
-                  {item}
-                </div>
-              ))}
-            </div>
-            <div className="px-4 py-3 border-t border-[var(--line)] bg-[var(--surface-2)] space-y-1">
-              <p className="text-xs font-semibold text-[var(--foreground-mute)]">반려동물 추가금 (필수)</p>
-              <p className="text-xs text-[var(--foreground-soft)]">15kg 미만 5,000원 · 15kg 초과 10,000원</p>
-            </div>
-            <div className="px-4 py-3 border-t border-[var(--line)] flex items-start gap-2">
-              <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-              <p className="text-xs text-[var(--foreground-mute)]">외부 음식·주류·음료 반입 금지 (적발 시 퇴장)</p>
-            </div>
-          </div>
         </section>
 
         {/* ===== ② 선택 이용 ===== */}
