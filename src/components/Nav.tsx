@@ -1,18 +1,17 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
-import { SignOutButton } from "./SignOutButton";
-import { ShieldCheck } from "lucide-react";
+import { NavMenu } from "./NavMenu";
 
 export async function Nav() {
-  let user: { id: string; email?: string } | null = null;
+  let user: { id: string } | null = null;
   let role: string | null = null;
 
   try {
     const supabase = await createClient();
     const { data } = await supabase.auth.getUser();
     if (data.user) {
-      user = { id: data.user.id, email: data.user.email ?? undefined };
+      user = { id: data.user.id };
       const { data: profile } = await supabase
         .from("profiles")
         .select("role")
@@ -40,42 +39,16 @@ export async function Nav() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-[var(--foreground-soft)]">
-          <Link href="/menu" className="hover:text-[var(--brand-strong)]">메뉴</Link>
+          <Link href="/menu"    className="hover:text-[var(--brand-strong)]">메뉴</Link>
           <Link href="/pricing" className="hover:text-[var(--brand-strong)]">이용안내</Link>
-          <Link href="/board" className="hover:text-[var(--brand-strong)]">발자국</Link>
-          <Link href="/now" className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>
+          <Link href="/board"   className="hover:text-[var(--brand-strong)]">발자국</Link>
+          <Link href="/now"     className="hover:text-[var(--brand-strong)]">오늘의 소르피아</Link>
           {user && (
             <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이페이지</Link>
           )}
         </nav>
 
-        <div className="flex items-center gap-2">
-          {(role === "admin" || role === "manager") && (
-            <Link
-              href="/admin"
-              className="inline-flex items-center gap-1 rounded-full bg-[var(--accent)] text-[var(--brand-strong)] px-3 py-1.5 text-xs font-bold shadow-sm hover:opacity-90"
-            >
-              <ShieldCheck className="w-3.5 h-3.5" />
-              {role === "admin" ? "관리자" : "매니저"}
-            </Link>
-          )}
-          {user ? (
-            <>
-              <div className="hidden md:block">
-                <SignOutButton />
-              </div>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="btn-ghost btn-sm">
-                로그인
-              </Link>
-              <Link href="/signup" className="btn-primary btn-sm">
-                가입
-              </Link>
-            </>
-          )}
-        </div>
+        <NavMenu user={user} role={role} />
       </div>
     </header>
   );
