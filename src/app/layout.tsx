@@ -6,7 +6,10 @@ import { Footer } from "@/components/Footer";
 import { BRAND } from "@/lib/brand";
 
 export const metadata: Metadata = {
-  title: `${BRAND.name} · ${BRAND.tagline}`,
+  title: {
+    default: `${BRAND.name} 동두천 애견카페`,
+    template: `%s | ${BRAND.name} 동두천 애견카페`,
+  },
   description: BRAND.subTagline,
 };
 
