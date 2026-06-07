@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { checkInAction, issueCouponAction } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 export default async function AttendancePage({
   searchParams,
 }: {
@@ -9,39 +11,49 @@ export default async function AttendancePage({
   const { q, message, error } = await searchParams;
   const supabase = await createClient();
 
-  let members: { id: string; display_name: string | null; email: string | null; visits_count: number }[] = [];
+  // 프로필 목록 (검색어 있으면 필터)
+  let profileQuery = supabase
+    .from("profiles")
+    .select("id,display_name,phone,email")
+    .limit(100);
   if (q) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("id,display_name,email")
-      .or(`display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`)
-      .limit(20);
-
-    members = await Promise.all(
-      (data ?? []).map(async (p) => {
-        const { count } = await supabase
-          .from("visits")
-          .select("*", { count: "exact", head: true })
-          .eq("profile_id", p.id);
-        return { ...p, visits_count: count ?? 0 };
-      }),
+    profileQuery = profileQuery.or(
+      `display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`,
     );
   }
+  const { data: profiles } = await profileQuery;
+  const profileIds = (profiles ?? []).map((p) => p.id);
 
-  const { data: recent } = await supabase
-    .from("visits")
-    .select("id,visited_at,profile_id,profiles(display_name,email)")
-    .order("visited_at", { ascending: false })
-    .limit(15);
+  // 방문 횟수 일괄 집계 (관리자는 전체 visits 읽기 가능)
+  const { data: visitRows } = profileIds.length
+    ? await supabase.from("visits").select("profile_id").in("profile_id", profileIds)
+    : { data: [] };
+
+  const visitMap = new Map<string, number>();
+  for (const r of visitRows ?? []) {
+    visitMap.set(r.profile_id, (visitMap.get(r.profile_id) ?? 0) + 1);
+  }
+
+  const members = (profiles ?? [])
+    .map((p) => ({ ...p, visits_count: visitMap.get(p.id) ?? 0 }))
+    .sort((a, b) => b.visits_count - a.visits_count);
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-6">
       <section>
-        <h2 className="font-semibold text-[var(--brand-strong)]">출석 체크</h2>
-        <form className="mt-3 flex gap-2">
-          <input name="q" defaultValue={q} placeholder="회원 검색" className="input flex-1" />
-          <button className="btn-outline" type="submit">검색</button>
+        <form className="flex gap-2">
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="이름 · 전화번호 · 아이디로 검색"
+            className="input flex-1"
+          />
+          <button className="btn-primary" type="submit">검색</button>
+          {q && (
+            <a href="/admin/attendance" className="btn-outline">전체</a>
+          )}
         </form>
+
         {message && (
           <p className="mt-3 text-sm rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
             {decodeURIComponent(message)}
@@ -52,57 +64,51 @@ export default async function AttendancePage({
             {decodeURIComponent(error)}
           </p>
         )}
+      </section>
 
-        {q && (
-          <ul className="mt-4 grid gap-2">
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-semibold text-[var(--brand-strong)]">
+            회원 목록
+            <span className="ml-2 text-xs font-normal text-[var(--foreground-mute)]">
+              {q ? `"${q}" 검색 결과 ${members.length}명` : `전체 ${members.length}명 · 방문 많은 순`}
+            </span>
+          </h2>
+        </div>
+
+        {members.length === 0 ? (
+          <p className="text-center py-10 opacity-60 text-sm">결과가 없습니다.</p>
+        ) : (
+          <ul className="grid gap-2">
             {members.map((m) => (
               <li
                 key={m.id}
-                className="flex items-center justify-between rounded-xl border border-[var(--ring)]/60 bg-white/80 p-3"
+                className="flex items-center justify-between rounded-2xl border border-[var(--line)] bg-white/80 px-4 py-3 gap-3 flex-wrap"
               >
-                <div>
-                  <div className="font-medium">{m.display_name}</div>
-                  <div className="text-xs opacity-70">
-                    {m.email} · 누적 {m.visits_count}회
+                <div className="min-w-0">
+                  <div className="font-semibold text-[var(--brand-strong)]">
+                    {m.display_name ?? "이름 없음"}
+                  </div>
+                  <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
+                    {m.phone ?? m.email ?? "-"} · 누적 {m.visits_count}회
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <form action={checkInAction}>
                     <input type="hidden" name="profile_id" value={m.id} />
-                    <input type="hidden" name="q" value={q} />
-                    <button className="btn-primary" type="submit">출석 도장</button>
+                    <input type="hidden" name="q" value={q ?? ""} />
+                    <button className="btn-primary btn-sm" type="submit">출석 도장</button>
                   </form>
                   <form action={issueCouponAction}>
                     <input type="hidden" name="profile_id" value={m.id} />
-                    <input type="hidden" name="q" value={q} />
-                    <button className="btn-outline" type="submit">쿠폰 수동 발급</button>
+                    <input type="hidden" name="q" value={q ?? ""} />
+                    <button className="btn-outline btn-sm" type="submit">쿠폰 발급</button>
                   </form>
                 </div>
               </li>
             ))}
-            {members.length === 0 && (
-              <li className="opacity-60 text-sm">검색 결과 없음.</li>
-            )}
           </ul>
         )}
-      </section>
-
-      <section>
-        <h2 className="font-semibold text-[var(--brand-strong)]">최근 출석</h2>
-        <ul className="mt-3 divide-y divide-[var(--ring)]/40 rounded-2xl border border-[var(--ring)]/60 bg-white/80">
-          {(recent ?? []).map((r) => {
-            const p = (r as unknown as { profiles: { display_name: string; email: string } }).profiles;
-            return (
-              <li key={r.id} className="flex justify-between px-4 py-2 text-sm">
-                <span>{p?.display_name ?? r.profile_id}</span>
-                <span className="opacity-70">{new Date(r.visited_at).toLocaleString()}</span>
-              </li>
-            );
-          })}
-          {(recent ?? []).length === 0 && (
-            <li className="px-4 py-6 text-center opacity-60 text-sm">아직 출석 기록이 없습니다.</li>
-          )}
-        </ul>
       </section>
     </div>
   );
