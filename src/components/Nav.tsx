@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { BRAND } from "@/lib/brand";
 import { NavMenu } from "./NavMenu";
-import { InstallPWA } from "./InstallPWA";
 
 export async function Nav() {
   let user: { id: string } | null = null;
@@ -45,10 +44,7 @@ export async function Nav() {
           {user && <Link href="/mypage" className="hover:text-[var(--brand-strong)]">마이페이지</Link>}
         </nav>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <InstallPWA />
-          <NavMenu user={user} role={role} brandName={BRAND.name} />
-        </div>
+        <NavMenu user={user} role={role} brandName={BRAND.name} />
       </div>
     </header>
   );

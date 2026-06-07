@@ -26,14 +26,14 @@ export async function updateDogAction(formData: FormData) {
   let photoUrl: string | undefined;
   if (photo instanceof File && photo.size > 0) {
     const ext = photo.name.split(".").pop() || "jpg";
-    const path = `${user.id}/${id}.${ext}`;
+    // 매번 새 파일명으로 → upsert 권한 필요 없음
+    const path = `${user.id}/${id}-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("dog-photos")
-      .upload(path, photo, { contentType: photo.type, upsert: true });
-    if (!upErr) {
-      const { data: pub } = supabase.storage.from("dog-photos").getPublicUrl(path);
-      photoUrl = pub.publicUrl;
-    }
+      .upload(path, photo, { contentType: photo.type, upsert: false });
+    if (upErr) fail(id, `사진 업로드 실패: ${upErr.message}`);
+    const { data: pub } = supabase.storage.from("dog-photos").getPublicUrl(path);
+    photoUrl = pub.publicUrl;
   }
 
   const updateData: Record<string, unknown> = { name, birthday: birthday || null, breed, weight, gender };

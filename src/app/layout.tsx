@@ -11,12 +11,6 @@ export const metadata: Metadata = {
     template: `%s | ${BRAND.name} 동두천 애견카페`,
   },
   description: BRAND.subTagline,
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: BRAND.name,
-  },
-  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {

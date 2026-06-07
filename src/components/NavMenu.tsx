@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -31,7 +32,21 @@ const ADMIN_LINKS = [
 
 export function NavMenu({ user, role, brandName }: Props) {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 메뉴 열렸을 때 body 스크롤 잠금
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = ""; };
+    }
+  }, [open]);
+
   const isAdmin = role === "admin" || role === "manager";
   const adminLinks = ADMIN_LINKS.filter((l) => l.roles.includes(role ?? ""));
 
@@ -43,111 +58,204 @@ export function NavMenu({ user, role, brandName }: Props) {
     router.push("/");
   }
 
+  function close() { setOpen(false); }
+
+  const overlay = open && mounted ? createPortal(
+    <div
+      style={{ position: "fixed", inset: 0, zIndex: 9999 }}
+      role="dialog"
+      aria-modal="true"
+    >
+      {/* 딤 배경 */}
+      <div
+        onClick={close}
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.45)",
+        }}
+      />
+
+      {/* 패널 */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          right: 0,
+          width: "min(320px, 85vw)",
+          backgroundColor: "#ffffff",
+          boxShadow: "-10px 0 30px rgba(0,0,0,0.15)",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {/* 헤더 */}
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "0 20px",
+          height: 64,
+          borderBottom: "1px solid #f0f0f0",
+        }}>
+          <span style={{ fontWeight: 700, fontSize: 16, color: "#225028" }}>{brandName}</span>
+          <button
+            onClick={close}
+            style={{
+              width: 36, height: 36,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              borderRadius: 12, background: "transparent", border: "none", cursor: "pointer",
+            }}
+            aria-label="닫기"
+          >
+            <X style={{ width: 22, height: 22, color: "#666" }} />
+          </button>
+        </div>
+
+        {/* 링크 목록 */}
+        <nav style={{ flex: 1, overflowY: "auto", padding: "12px 0" }}>
+          {PUBLIC_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={close}
+              style={{
+                display: "block",
+                padding: "14px 24px",
+                fontSize: 15,
+                color: "#374151",
+                textDecoration: "none",
+              }}
+            >
+              {l.label}
+            </Link>
+          ))}
+
+          {user && (
+            <>
+              <div style={{ height: 1, backgroundColor: "#f3f4f6", margin: "8px 24px" }} />
+              <Link
+                href="/mypage"
+                onClick={close}
+                style={{
+                  display: "block",
+                  padding: "14px 24px",
+                  fontSize: 15,
+                  color: "#374151",
+                  textDecoration: "none",
+                }}
+              >
+                마이페이지
+              </Link>
+            </>
+          )}
+
+          {isAdmin && (
+            <>
+              <div style={{ height: 1, backgroundColor: "#f3f4f6", margin: "8px 24px" }} />
+              <p style={{
+                padding: "8px 24px",
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+                textTransform: "uppercase",
+                color: "#9ca3af",
+                margin: 0,
+              }}>
+                {role === "admin" ? "Admin" : "Manager"}
+              </p>
+              {adminLinks.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={close}
+                  style={{
+                    display: "block",
+                    padding: "14px 24px",
+                    fontSize: 15,
+                    color: "#374151",
+                    textDecoration: "none",
+                  }}
+                >
+                  {l.label}
+                </Link>
+              ))}
+            </>
+          )}
+        </nav>
+
+        {/* 하단 */}
+        <div style={{
+          padding: "16px 24px",
+          borderTop: "1px solid #f0f0f0",
+        }}>
+          {user ? (
+            <button
+              onClick={handleSignOut}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "#9ca3af",
+                fontSize: 14,
+                cursor: "pointer",
+                padding: 0,
+              }}
+            >
+              로그아웃
+            </button>
+          ) : (
+            <div style={{ display: "flex", gap: 8 }}>
+              <Link
+                href="/login"
+                onClick={close}
+                style={{
+                  flex: 1, textAlign: "center",
+                  border: "1px solid #e5e7eb", borderRadius: 16,
+                  padding: "10px 0", fontSize: 14, fontWeight: 500,
+                  color: "#4b5563", textDecoration: "none",
+                }}
+              >
+                로그인
+              </Link>
+              <Link
+                href="/signup"
+                onClick={close}
+                style={{
+                  flex: 1, textAlign: "center",
+                  backgroundColor: "#3a7a3f", borderRadius: 16,
+                  padding: "10px 0", fontSize: 14, fontWeight: 500,
+                  color: "#ffffff", textDecoration: "none",
+                }}
+              >
+                가입
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
   return (
     <>
       <button
         onClick={() => setOpen(true)}
         aria-label="메뉴"
-        className="inline-flex items-center justify-center w-10 h-10 rounded-xl text-[var(--foreground-soft)] hover:bg-[var(--surface-2)] transition-colors"
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: 40, height: 40,
+          borderRadius: 12,
+          background: "transparent", border: "none", cursor: "pointer",
+          color: "#44523d",
+        }}
       >
-        <Menu className="w-6 h-6" strokeWidth={1.8} />
+        <Menu style={{ width: 24, height: 24 }} strokeWidth={1.8} />
       </button>
-
-      {open && (
-        <>
-          {/* 딤 오버레이 */}
-          <div
-            className="fixed inset-0 z-40 bg-black/40"
-            onClick={() => setOpen(false)}
-          />
-
-          {/* 사이드 패널 */}
-          <div
-            className="fixed right-0 top-0 bottom-0 z-50 w-72 flex flex-col shadow-2xl"
-            style={{ backgroundColor: "#ffffff" }}
-          >
-            {/* 헤더 */}
-            <div className="flex items-center justify-between px-6 h-16 border-b border-gray-100">
-              <span className="font-bold text-base text-[var(--brand-strong)]">{brandName}</span>
-              <button
-                onClick={() => setOpen(false)}
-                className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-
-            {/* 링크 목록 */}
-            <nav className="flex-1 overflow-y-auto py-4">
-              {PUBLIC_LINKS.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="block px-6 py-3.5 text-[15px] text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  {l.label}
-                </Link>
-              ))}
-
-              {user && (
-                <>
-                  <div className="h-px bg-gray-100 my-2 mx-6" />
-                  <Link
-                    href="/mypage"
-                    onClick={() => setOpen(false)}
-                    className="block px-6 py-3.5 text-[15px] text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    마이페이지
-                  </Link>
-                </>
-              )}
-
-              {isAdmin && (
-                <>
-                  <div className="h-px bg-gray-100 my-2 mx-6" />
-                  <p className="px-6 py-2 text-[11px] font-bold uppercase tracking-widest text-gray-400">
-                    {role === "admin" ? "Admin" : "Manager"}
-                  </p>
-                  {adminLinks.map((l) => (
-                    <Link
-                      key={l.href}
-                      href={l.href}
-                      onClick={() => setOpen(false)}
-                      className="block px-6 py-3.5 text-[15px] text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      {l.label}
-                    </Link>
-                  ))}
-                </>
-              )}
-            </nav>
-
-            {/* 하단 */}
-            <div className="px-6 py-5 border-t border-gray-100">
-              {user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="text-sm text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  로그아웃
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <Link href="/login" onClick={() => setOpen(false)}
-                    className="flex-1 text-center rounded-2xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50">
-                    로그인
-                  </Link>
-                  <Link href="/signup" onClick={() => setOpen(false)}
-                    className="flex-1 text-center rounded-2xl bg-[var(--brand)] text-white py-2.5 text-sm font-medium hover:opacity-90">
-                    가입
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+      {overlay}
     </>
   );
 }
