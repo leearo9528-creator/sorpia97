@@ -101,6 +101,10 @@ export default function PricingPage() {
                 </tbody>
               </table>
             </div>
+            <div className="flex items-start gap-2 px-4 py-3 border-t border-[var(--line)] bg-red-50">
+              <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-xs text-red-600 font-medium">결제 후 패키지 변경·번복은 불가합니다. 입장 전에 꼭 결정해 주세요!</p>
+            </div>
           </div>
         </section>
 
