@@ -228,23 +228,22 @@ export default function PricingPage() {
           <div className="card !p-0 overflow-hidden">
             <div className="divide-y divide-[var(--line)]">
               {[
-                { kg: "7kg 이하",  swim: "10,000원", bath: "15,000원", bathOrig: "17,000원" },
-                { kg: "15kg 이하", swim: "10,000원", bath: "22,000원", bathOrig: "25,000원" },
-                { kg: "30kg 이하", swim: "20,000원", bath: "40,000원", bathOrig: "45,000원" },
-                { kg: "30kg 초과", swim: "20,000원", bath: "45,000원", bathOrig: "55,000원" },
-              ].map(({ kg, swim, bath, bathOrig }) => (
-                <div key={kg} className="px-4 py-3.5 space-y-2">
-                  <p className="text-xs font-bold text-[var(--foreground-mute)] uppercase tracking-wider">{kg}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[var(--foreground-soft)]">입장 + 수영</span>
-                    <span className="font-semibold text-[var(--brand-strong)]">{swim}</span>
+                { kg: "7kg 이하",  bath: "15,000원", bathOrig: "17,000원", save: "2,000원 할인" },
+                { kg: "15kg 이하", bath: "22,000원", bathOrig: "25,000원", save: "3,000원 할인" },
+                { kg: "30kg 이하", bath: "40,000원", bathOrig: "45,000원", save: "5,000원 할인" },
+                { kg: "30kg 초과", bath: "45,000원", bathOrig: "55,000원", save: "10,000원 할인" },
+              ].map(({ kg, bath, bathOrig, save }) => (
+                <div key={kg} className="flex items-center justify-between px-4 py-3.5">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">{kg}</p>
+                    <p className="text-xs text-[var(--foreground-mute)] mt-0.5">입장 + 수영 + 목욕</p>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-[var(--accent-deep)]">입장 + 수영 + 목욕</span>
-                    <div className="text-right">
+                  <div className="text-right">
+                    <div className="flex items-center gap-1.5 justify-end">
+                      <span className="text-[11px] font-bold text-red-500">{save}</span>
                       <span className="font-bold text-[var(--accent-deep)]">{bath}</span>
-                      <span className="ml-2 text-xs text-[var(--foreground-mute)] line-through">{bathOrig}</span>
                     </div>
+                    <span className="text-xs text-[var(--foreground-mute)] line-through">{bathOrig}</span>
                   </div>
                 </div>
               ))}
