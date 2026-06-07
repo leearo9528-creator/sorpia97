@@ -40,19 +40,18 @@ export default async function SignupPage({
         >
           <section className="space-y-4">
             <div className="flex items-center gap-2 text-[var(--brand-strong)] font-semibold">
-              <User className="w-4 h-4" /> 보호자 정보
+              <User className="w-4 h-4" /> 회원 정보
             </div>
             <div>
-              <label className="label">이름</label>
-              <input className="input" name="display_name" required />
-            </div>
-            <div>
-              <label className="label">이메일</label>
-              <input className="input" type="email" name="email" required />
-            </div>
-            <div>
-              <label className="label">전화번호</label>
-              <input className="input" name="phone" placeholder="010-0000-0000" />
+              <label className="label">아이디</label>
+              <input
+                className="input"
+                name="username"
+                required
+                autoComplete="username"
+                placeholder="영문/숫자 4~20자"
+                pattern="[a-zA-Z0-9._\-]{4,20}"
+              />
             </div>
             <div>
               <label className="label">비밀번호 (8자 이상)</label>
@@ -62,7 +61,27 @@ export default async function SignupPage({
                 name="password"
                 minLength={8}
                 required
+                autoComplete="new-password"
               />
+            </div>
+            <div>
+              <label className="label">비밀번호 확인</label>
+              <input
+                className="input"
+                type="password"
+                name="password_confirm"
+                minLength={8}
+                required
+                autoComplete="new-password"
+              />
+            </div>
+            <div>
+              <label className="label">견주님 성함</label>
+              <input className="input" name="display_name" required />
+            </div>
+            <div>
+              <label className="label">전화번호</label>
+              <input className="input" name="phone" placeholder="010-0000-0000" />
             </div>
           </section>
 

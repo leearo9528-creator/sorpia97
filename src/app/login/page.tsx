@@ -24,8 +24,8 @@ export default async function LoginPage({
         <form action={signInAction} className="mt-8 space-y-4">
           <input type="hidden" name="next" value={next ?? "/mypage"} />
           <div>
-            <label className="label">이메일</label>
-            <input className="input" type="email" name="email" required autoComplete="email" />
+            <label className="label">아이디</label>
+            <input className="input" name="username" required autoComplete="username" />
           </div>
           <div>
             <label className="label">비밀번호</label>

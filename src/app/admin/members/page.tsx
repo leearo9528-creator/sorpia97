@@ -32,7 +32,7 @@ export default async function MembersPage({
         <input
           name="q"
           defaultValue={q}
-          placeholder="이름, 이메일, 전화번호로 검색"
+          placeholder="이름, 아이디, 전화번호로 검색"
           className="input flex-1"
         />
         <button className="btn-primary" type="submit">검색</button>
@@ -43,7 +43,7 @@ export default async function MembersPage({
           <thead className="bg-[var(--muted)]/60 text-left">
             <tr>
               <th className="px-4 py-3">이름</th>
-              <th className="px-4 py-3">이메일</th>
+              <th className="px-4 py-3">아이디</th>
               <th className="px-4 py-3">전화</th>
               <th className="px-4 py-3">강아지</th>
               <th className="px-4 py-3">권한</th>
