@@ -8,7 +8,7 @@ export const BRAND = {
   phone: "0507-1428-9515",
   phoneRaw: "050714289515",
   naverMapUrl: "https://map.naver.com/p/search/소르피아97",
-  hours: "매일 오픈 (매주 월요일 휴무)",
+  hours: "평일 12:00 ~ 22:00 · 주말 11:00 ~ 22:00 · 월요일 정기휴무",
   closedDay: "매주 월요일 휴무",
   notice: "매주 화요일은 수영장 물 교체일 · 오전 방문 시 수영장 이용 대기 가능",
   event: "🐔 강아지 닭가슴살 1개 서비스 (오픈 이벤트)",
