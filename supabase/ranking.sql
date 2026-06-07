@@ -1,3 +1,6 @@
+-- 반환 타입이 바뀌면 DROP 후 재생성해야 함
+drop function if exists public.get_monthly_ranking(int, int);
+
 -- 월별 랭킹 집계 함수
 -- security definer: RLS 우회하여 전체 방문 집계
 -- 동률 시 강아지 수가 많은 보호자가 상위 순위
