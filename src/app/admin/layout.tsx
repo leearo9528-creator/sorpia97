@@ -3,22 +3,15 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
 const ADMIN_TABS = [
-  { href: "/admin", label: "대시보드" },
-  { href: "/admin/members", label: "회원·강아지" },
-  { href: "/admin/attendance", label: "출석/쿠폰" },
-  { href: "/admin/fields", label: "운동장 대관" },
-  { href: "/admin/trekking", label: "트레킹 예약" },
-  { href: "/admin/menu", label: "메뉴 가격" },
-  { href: "/admin/content", label: "콘텐츠" },
-  { href: "/admin/announcements", label: "공지사항" },
+  { href: "/admin/members",      label: "회원·강아지" },
+  { href: "/admin/menu",         label: "메뉴" },
+  { href: "/admin/trekking",     label: "트레킹 예약" },
+  { href: "/admin/announcements",label: "공지사항" },
 ];
 
 const MANAGER_TABS = [
-  { href: "/admin", label: "대시보드" },
-  { href: "/admin/attendance", label: "출석/쿠폰" },
-  { href: "/admin/fields", label: "운동장 대관" },
+  { href: "/admin/members",  label: "회원·강아지" },
   { href: "/admin/trekking", label: "트레킹 예약" },
-  { href: "/admin/announcements", label: "공지사항" },
 ];
 
 export default async function AdminLayout({

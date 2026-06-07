@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import { updateMemberRoleAction, updateMemberProfileAction } from "./actions";
+import { Ticket, CheckCircle2, Trash2 } from "lucide-react";
+import {
+  updateMemberProfileAction,
+  updateMemberRoleAction,
+  checkInAction,
+  issueCouponAction,
+  deleteCouponAction,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -23,80 +30,131 @@ export default async function MembersPage({
   const { q, message, error, edit } = await searchParams;
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
-  const { data: me } = await supabase.from("profiles").select("role").eq("id", user!.id).maybeSingle();
-  if (me?.role !== "admin") {
-    return <p className="py-10 text-center opacity-60 text-sm">이 메뉴는 최고 관리자만 이용할 수 있습니다.</p>;
-  }
-
-  let query = supabase
+  // 프로필 목록 (검색 필터)
+  let profileQuery = supabase
     .from("profiles")
-    .select("id,email,display_name,phone,role,created_at,dogs(id,name)")
-    .order("created_at", { ascending: false })
-    .limit(100);
-
+    .select("id,email,display_name,phone,role,created_at")
+    .limit(200);
   if (q) {
-    query = query.or(`display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`);
+    profileQuery = profileQuery.or(
+      `display_name.ilike.%${q}%,email.ilike.%${q}%,phone.ilike.%${q}%`,
+    );
+  }
+  const { data: profiles } = await profileQuery;
+  const profileIds = (profiles ?? []).map((p) => p.id);
+
+  // 방문 집계 + 오늘 방문 여부 (KST 기준)
+  const kstNow     = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const todayKST   = kstNow.toISOString().split("T")[0];
+  const startOfDay = new Date(todayKST + "T00:00:00+09:00").toISOString();
+
+  const [{ data: visitRows }, { data: editCoupons }] = await Promise.all([
+    profileIds.length
+      ? supabase
+          .from("visits")
+          .select("profile_id,visited_at")
+          .in("profile_id", profileIds)
+      : { data: [] as { profile_id: string; visited_at: string }[] },
+    edit
+      ? supabase
+          .from("coupons")
+          .select("id,kind,title,description,issued_at,expires_at,used_at")
+          .eq("profile_id", edit)
+          .order("issued_at", { ascending: false })
+      : { data: null },
+  ]);
+
+  const visitTotalMap = new Map<string, number>();
+  const visitTodaySet = new Set<string>();
+  for (const v of visitRows ?? []) {
+    visitTotalMap.set(v.profile_id, (visitTotalMap.get(v.profile_id) ?? 0) + 1);
+    if (v.visited_at >= startOfDay) visitTodaySet.add(v.profile_id);
   }
 
-  const { data: members } = await query;
+  const members = (profiles ?? [])
+    .map((p) => ({
+      ...p,
+      visits_count:  visitTotalMap.get(p.id) ?? 0,
+      checked_today: visitTodaySet.has(p.id),
+    }))
+    .sort((a, b) => b.visits_count - a.visits_count);
 
   return (
-    <div>
+    <div className="grid gap-4">
+      {/* 검색 */}
+      <form className="flex gap-2">
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="이름 · 전화번호 · 아이디 검색"
+          className="input flex-1"
+        />
+        <button className="btn-primary" type="submit">검색</button>
+        {q && <a href="/admin/members" className="btn-outline">전체</a>}
+      </form>
+
       {message && (
-        <p className="mb-4 text-sm rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
+        <p className="text-sm rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2">
           {decodeURIComponent(message)}
         </p>
       )}
       {error && (
-        <p className="mb-4 text-sm rounded-xl bg-red-50 border border-red-200 px-3 py-2">
+        <p className="text-sm rounded-xl bg-red-50 border border-red-200 px-3 py-2">
           {decodeURIComponent(error)}
         </p>
       )}
 
-      <form className="flex gap-2 mb-6">
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="이름, 아이디, 전화번호로 검색"
-          className="input flex-1"
-        />
-        <button className="btn-primary" type="submit">검색</button>
-      </form>
+      <p className="text-xs text-[var(--foreground-mute)]">
+        {q
+          ? `"${q}" 검색 결과 ${members.length}명`
+          : `전체 ${members.length}명 · 방문 많은 순`}
+      </p>
 
+      {/* 회원 카드 목록 */}
       <div className="grid gap-3">
-        {(members ?? []).map((m) => {
-          const dogs = (m as unknown as { dogs: { name: string }[] }).dogs ?? [];
-          const isEditing = edit === m.id;
+        {members.map((m) => {
+          const isEditing    = edit === m.id;
+          const coupons      = isEditing ? (editCoupons ?? []) : [];
+          const validCoupons = coupons.filter((c) => !c.used_at);
+          const usedCoupons  = coupons.filter((c) => c.used_at);
 
           return (
             <div
               key={m.id}
               className={
                 "rounded-2xl border p-4 " +
-                (isEditing ? "border-[var(--brand)] bg-[var(--brand-soft)]/20" : "border-[var(--line)] bg-white/80")
+                (isEditing
+                  ? "border-[var(--brand)] bg-[var(--brand-soft)]/10"
+                  : "border-[var(--line)] bg-white/80")
               }
             >
-              {/* 기본 정보 행 */}
+              {/* 요약 행 */}
               <div className="flex items-start justify-between gap-3 flex-wrap">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-[var(--brand-strong)]">{m.display_name}</span>
+                    <span className="font-semibold text-[var(--brand-strong)]">
+                      {m.display_name ?? "이름 없음"}
+                    </span>
                     <span className={`rounded-full px-2 py-0.5 text-xs ${roleBadge(m.role ?? "member")}`}>
                       {ROLE_OPTIONS.find((r) => r.value === m.role)?.label ?? m.role}
                     </span>
+                    {m.checked_today && (
+                      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs bg-emerald-100 text-emerald-700 font-medium">
+                        <CheckCircle2 className="w-3 h-3" /> 오늘 출석
+                      </span>
+                    )}
                   </div>
                   <div className="text-xs text-[var(--foreground-mute)] mt-0.5 space-x-2">
-                    <span>{m.email}</span>
-                    {m.phone && <span>{m.phone}</span>}
-                    {dogs.length > 0 && <span>🐾 {dogs.map((d) => d.name).join(", ")}</span>}
-                    <span>{new Date(m.created_at).toLocaleDateString()}</span>
+                    <span>{m.phone ?? m.email}</span>
+                    <span>누적 {m.visits_count}회</span>
                   </div>
                 </div>
-
-                {/* 편집 열기/닫기 링크 */}
                 <a
-                  href={isEditing ? `/admin/members${q ? `?q=${q}` : ""}` : `/admin/members?${q ? `q=${q}&` : ""}edit=${m.id}`}
+                  href={
+                    isEditing
+                      ? `/admin/members${q ? `?q=${q}` : ""}`
+                      : `/admin/members?${q ? `q=${q}&` : ""}edit=${m.id}`
+                  }
                   className="text-xs text-[var(--brand)] font-medium hover:underline shrink-0"
                 >
                   {isEditing ? "닫기" : "수정"}
@@ -105,49 +163,139 @@ export default async function MembersPage({
 
               {/* 편집 패널 */}
               {isEditing && (
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {/* 프로필 수정 */}
-                  <form action={updateMemberProfileAction} className="card !p-4 grid gap-3">
-                    <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">기본 정보</p>
-                    <input type="hidden" name="id" value={m.id} />
-                    <input type="hidden" name="q" value={q ?? ""} />
-                    <div>
-                      <label className="label">이름</label>
-                      <input className="input" name="display_name" defaultValue={m.display_name ?? ""} required />
-                    </div>
-                    <div>
-                      <label className="label">전화번호</label>
-                      <input className="input" name="phone" defaultValue={m.phone ?? ""} placeholder="010-0000-0000" />
-                    </div>
-                    <button type="submit" className="btn-primary btn-sm justify-self-start">저장</button>
-                  </form>
+                <div className="mt-5 grid gap-5">
 
-                  {/* 권한 변경 */}
-                  <form action={updateMemberRoleAction} className="card !p-4 grid gap-3">
-                    <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">권한</p>
-                    <input type="hidden" name="id" value={m.id} />
-                    <input type="hidden" name="q" value={q ?? ""} />
-                    <div>
-                      <label className="label">역할</label>
-                      <select className="input" name="role" defaultValue={m.role ?? "member"}>
-                        {ROLE_OPTIONS.map((r) => (
-                          <option key={r.value} value={r.value}>{r.label}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <p className="text-[11px] text-[var(--foreground-mute)]">
-                      manager: 출석·공지·대관·트레킹 접근<br />
-                      admin: 전체 접근
+                  {/* 출석 체크 */}
+                  <section className="rounded-2xl border border-[var(--line)] p-4">
+                    <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider mb-3">
+                      출석 체크
                     </p>
-                    <button type="submit" className="btn-outline btn-sm justify-self-start">권한 변경</button>
-                  </form>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <span className="text-sm">
+                        누적 <b className="text-[var(--brand-strong)]">{m.visits_count}회</b>
+                      </span>
+                      {m.checked_today ? (
+                        <span className="inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs bg-emerald-100 text-emerald-700 font-semibold">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> 오늘 출석 완료
+                        </span>
+                      ) : (
+                        <form action={checkInAction}>
+                          <input type="hidden" name="profile_id" value={m.id} />
+                          <input type="hidden" name="q" value={q ?? ""} />
+                          <button className="btn-primary btn-sm" type="submit">
+                            출석 도장 찍기
+                          </button>
+                        </form>
+                      )}
+                    </div>
+                  </section>
+
+                  {/* 쿠폰 관리 */}
+                  <section className="rounded-2xl border border-[var(--line)] p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">
+                        쿠폰
+                        <span className="ml-2 font-normal text-[var(--foreground-mute)] normal-case">
+                          사용가능 {validCoupons.length}장 · 사용됨 {usedCoupons.length}장
+                        </span>
+                      </p>
+                      <form action={issueCouponAction}>
+                        <input type="hidden" name="profile_id" value={m.id} />
+                        <input type="hidden" name="q" value={q ?? ""} />
+                        <button className="btn-outline btn-sm" type="submit">
+                          + 쿠폰 발급
+                        </button>
+                      </form>
+                    </div>
+                    {coupons.length === 0 ? (
+                      <p className="text-xs text-[var(--foreground-mute)] py-2">보유 쿠폰 없음</p>
+                    ) : (
+                      <ul className="space-y-1.5">
+                        {coupons.map((c) => (
+                          <li
+                            key={c.id}
+                            className={
+                              "flex items-center gap-3 rounded-xl px-3 py-2 " +
+                              (c.used_at
+                                ? "opacity-50 bg-[var(--surface-2)]"
+                                : "bg-[var(--accent-soft)]")
+                            }
+                          >
+                            <Ticket className="w-4 h-4 shrink-0 text-[var(--accent)]" />
+                            <div className="flex-1 min-w-0 text-sm">
+                              <div className="font-medium text-[var(--brand-strong)] truncate">
+                                {c.title}
+                              </div>
+                              <div className="text-xs text-[var(--foreground-mute)]">
+                                {c.used_at
+                                  ? `사용됨 ${new Date(c.used_at).toLocaleDateString()}`
+                                  : c.expires_at
+                                    ? `~ ${new Date(c.expires_at).toLocaleDateString()}`
+                                    : "기한 없음"}
+                              </div>
+                            </div>
+                            <form action={deleteCouponAction}>
+                              <input type="hidden" name="coupon_id" value={c.id} />
+                              <input type="hidden" name="profile_id" value={m.id} />
+                              <input type="hidden" name="q" value={q ?? ""} />
+                              <button
+                                type="submit"
+                                title="쿠폰 삭제"
+                                className="inline-flex items-center justify-center w-6 h-6 rounded-lg hover:bg-red-100 text-red-400 hover:text-red-600"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </form>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+
+                  {/* 기본 정보 + 권한 */}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <form action={updateMemberProfileAction} className="rounded-2xl border border-[var(--line)] p-4 grid gap-3">
+                      <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">기본 정보</p>
+                      <input type="hidden" name="id" value={m.id} />
+                      <input type="hidden" name="q" value={q ?? ""} />
+                      <div>
+                        <label className="label">이름</label>
+                        <input className="input" name="display_name" defaultValue={m.display_name ?? ""} required />
+                      </div>
+                      <div>
+                        <label className="label">전화번호</label>
+                        <input className="input" name="phone" defaultValue={m.phone ?? ""} placeholder="010-0000-0000" />
+                      </div>
+                      <button type="submit" className="btn-primary btn-sm justify-self-start">저장</button>
+                    </form>
+
+                    <form action={updateMemberRoleAction} className="rounded-2xl border border-[var(--line)] p-4 grid gap-3">
+                      <p className="text-xs font-bold text-[var(--brand-strong)] uppercase tracking-wider">권한</p>
+                      <input type="hidden" name="id" value={m.id} />
+                      <input type="hidden" name="q" value={q ?? ""} />
+                      <div>
+                        <label className="label">역할</label>
+                        <select className="input" name="role" defaultValue={m.role ?? "member"}>
+                          {ROLE_OPTIONS.map((r) => (
+                            <option key={r.value} value={r.value}>{r.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <p className="text-[11px] text-[var(--foreground-mute)]">
+                        manager: 회원·트레킹 접근<br />
+                        admin: 전체 접근
+                      </p>
+                      <button type="submit" className="btn-outline btn-sm justify-self-start">권한 변경</button>
+                    </form>
+                  </div>
+
                 </div>
               )}
             </div>
           );
         })}
 
-        {(members ?? []).length === 0 && (
+        {members.length === 0 && (
           <p className="text-center opacity-60 text-sm py-8">결과가 없습니다.</p>
         )}
       </div>

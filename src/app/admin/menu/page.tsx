@@ -1,10 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Eye, EyeOff, Plus, Pencil } from "lucide-react";
-import {
-  updateItemPriceAction,
-  toggleItemActiveAction,
-  addItemAction,
-} from "./actions";
+import { updateItemAction, toggleItemActiveAction, addItemAction } from "./actions";
 import { DeleteButton } from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
@@ -78,10 +74,6 @@ export default async function AdminMenuPage({
         </p>
       )}
 
-      <p className="text-xs text-[var(--foreground-mute)]">
-        가격은 원 단위 정수 (예: 6500). 비정형 가격은 가격란 비우고 가격 텍스트에 입력.
-      </p>
-
       {categories.map((cat) => (
         <details key={cat.id} open={open === cat.code || undefined} className="group">
           <summary className="cursor-pointer list-none flex items-center justify-between py-3 border-b border-[var(--line)]">
@@ -95,34 +87,36 @@ export default async function AdminMenuPage({
             <Pencil className="w-4 h-4 text-[var(--foreground-mute)] group-open:text-[var(--brand)]" />
           </summary>
 
-          <div className="mt-3 grid gap-2">
+          <div className="mt-3 grid gap-3">
             {cat.menu_items.map((item) => (
               <div
                 key={item.id}
                 className={
-                  "rounded-2xl border px-4 py-3 " +
+                  "rounded-2xl border p-4 " +
                   (item.is_active
                     ? "bg-white border-[var(--line)]"
                     : "bg-[var(--surface-2)] border-[var(--line)] opacity-60")
                 }
               >
-                <div className="flex items-start gap-3 flex-wrap">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm text-[var(--brand-strong)]">
-                      {item.rank != null && (
-                        <span className="mr-1 text-[var(--accent)] font-bold">{item.rank}.</span>
-                      )}
-                      {item.name}
-                    </div>
-                    {item.description && (
-                      <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
-                        {item.description}
-                      </div>
-                    )}
+                {/* 편집 폼 — 이름 + 설명 + 가격 한 번에 */}
+                <form action={updateItemAction} className="grid gap-2">
+                  <input type="hidden" name="id" value={item.id} />
+                  <div className="flex gap-2 flex-wrap">
+                    <input
+                      name="name"
+                      required
+                      defaultValue={item.name}
+                      placeholder="메뉴 이름"
+                      className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
+                    />
+                    <input
+                      name="description"
+                      defaultValue={item.description ?? ""}
+                      placeholder="설명 (선택)"
+                      className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
+                    />
                   </div>
-
-                  <form action={updateItemPriceAction} className="flex items-center gap-1.5 flex-wrap">
-                    <input type="hidden" name="id" value={item.id} />
+                  <div className="flex items-center gap-2 flex-wrap">
                     <input
                       name="price"
                       type="number"
@@ -130,42 +124,44 @@ export default async function AdminMenuPage({
                       step="100"
                       defaultValue={item.price ?? ""}
                       placeholder="가격(원)"
-                      className="w-24 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
+                      className="w-28 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
                     />
                     <input
                       name="price_text"
                       defaultValue={item.price_text ?? ""}
                       placeholder="가격텍스트"
-                      className="w-36 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
+                      className="w-40 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
                     />
                     <button
                       type="submit"
-                      className="rounded-xl bg-[var(--brand)] text-white text-xs px-2.5 py-1 hover:bg-[var(--brand-strong)]"
+                      className="rounded-xl bg-[var(--brand)] text-white text-xs px-3 py-1.5 hover:bg-[var(--brand-strong)]"
                     >
                       저장
                     </button>
-                  </form>
 
-                  <form action={toggleItemActiveAction}>
-                    <input type="hidden" name="id" value={item.id} />
-                    <input type="hidden" name="is_active" value={String(item.is_active)} />
-                    <button
-                      type="submit"
-                      title={item.is_active ? "비활성화" : "활성화"}
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-[var(--surface-2)] text-[var(--foreground-mute)]"
-                    >
-                      {item.is_active
-                        ? <Eye className="w-3.5 h-3.5" />
-                        : <EyeOff className="w-3.5 h-3.5" />}
-                    </button>
-                  </form>
+                    {/* 활성/비활성 토글 */}
+                    <form action={toggleItemActiveAction} className="contents">
+                      <input type="hidden" name="id" value={item.id} />
+                      <input type="hidden" name="is_active" value={String(item.is_active)} />
+                      <button
+                        type="submit"
+                        title={item.is_active ? "숨기기" : "표시"}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[var(--surface-2)] text-[var(--foreground-mute)]"
+                      >
+                        {item.is_active
+                          ? <Eye className="w-4 h-4" />
+                          : <EyeOff className="w-4 h-4" />}
+                      </button>
+                    </form>
 
-                  <DeleteButton id={item.id} name={item.name} />
-                </div>
+                    <DeleteButton id={item.id} name={item.name} />
+                  </div>
+                </form>
               </div>
             ))}
 
-            <details className="mt-2">
+            {/* 항목 추가 */}
+            <details className="mt-1">
               <summary className="cursor-pointer list-none text-xs text-[var(--brand)] font-semibold flex items-center gap-1 px-1 py-1">
                 <Plus className="w-3.5 h-3.5" />
                 항목 추가
@@ -175,35 +171,13 @@ export default async function AdminMenuPage({
                 className="mt-2 rounded-2xl border border-dashed border-[var(--ring)] p-3 grid gap-2"
               >
                 <input type="hidden" name="category_id" value={cat.id} />
-                <input
-                  name="name"
-                  required
-                  placeholder="메뉴 이름 *"
-                  className="input !min-h-0 py-1.5 text-sm"
-                />
-                <input
-                  name="description"
-                  placeholder="설명 (선택)"
-                  className="input !min-h-0 py-1.5 text-sm"
-                />
+                <input name="name" required placeholder="메뉴 이름 *" className="input !min-h-0 py-1.5 text-sm" />
+                <input name="description" placeholder="설명 (선택)" className="input !min-h-0 py-1.5 text-sm" />
                 <div className="flex gap-2">
-                  <input
-                    name="price"
-                    type="number"
-                    min="0"
-                    step="100"
-                    placeholder="가격(원)"
-                    className="input !min-h-0 py-1.5 text-sm flex-1"
-                  />
-                  <input
-                    name="price_text"
-                    placeholder="가격텍스트"
-                    className="input !min-h-0 py-1.5 text-sm flex-1"
-                  />
+                  <input name="price" type="number" min="0" step="100" placeholder="가격(원)" className="input !min-h-0 py-1.5 text-sm flex-1" />
+                  <input name="price_text" placeholder="가격텍스트" className="input !min-h-0 py-1.5 text-sm flex-1" />
                 </div>
-                <button type="submit" className="btn-primary btn-sm justify-self-start">
-                  추가
-                </button>
+                <button type="submit" className="btn-primary btn-sm justify-self-start">추가</button>
               </form>
             </details>
           </div>

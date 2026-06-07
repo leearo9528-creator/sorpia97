@@ -9,21 +9,23 @@ function back(params: Record<string, string>) {
   redirect(`/admin/menu?${sp.toString()}`);
 }
 
-export async function updateItemPriceAction(formData: FormData) {
-  const id         = String(formData.get("id") ?? "");
-  const priceRaw   = String(formData.get("price") ?? "").trim();
-  const price_text = String(formData.get("price_text") ?? "").trim() || null;
+export async function updateItemAction(formData: FormData) {
+  const id          = String(formData.get("id") ?? "");
+  const name        = String(formData.get("name") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim() || null;
+  const priceRaw    = String(formData.get("price") ?? "").trim();
+  const price_text  = String(formData.get("price_text") ?? "").trim() || null;
+
+  if (!name) back({ error: "메뉴 이름을 입력해 주세요." });
 
   const price = priceRaw === "" ? null : parseInt(priceRaw.replace(/,/g, ""), 10);
-
-  if (priceRaw !== "" && (isNaN(price!) || price! < 0)) {
+  if (priceRaw !== "" && (isNaN(price!) || price! < 0))
     back({ error: "가격은 0 이상의 숫자(원 단위)로 입력해 주세요." });
-  }
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("menu_items")
-    .update({ price, price_text })
+    .update({ name, description, price, price_text })
     .eq("id", id);
 
   if (error) back({ error: error.message });
@@ -34,8 +36,8 @@ export async function updateItemPriceAction(formData: FormData) {
 export async function toggleItemActiveAction(formData: FormData) {
   const id        = String(formData.get("id") ?? "");
   const is_active = formData.get("is_active") === "true";
+  const supabase  = await createClient();
 
-  const supabase = await createClient();
   const { error } = await supabase
     .from("menu_items")
     .update({ is_active: !is_active })
@@ -43,7 +45,7 @@ export async function toggleItemActiveAction(formData: FormData) {
 
   if (error) back({ error: error.message });
   revalidatePath("/menu");
-  back({ message: is_active ? "비활성 처리됐습니다." : "활성 처리됐습니다." });
+  back({ message: is_active ? "숨겼습니다." : "표시됐습니다." });
 }
 
 export async function addItemAction(formData: FormData) {
@@ -56,7 +58,6 @@ export async function addItemAction(formData: FormData) {
   if (!name) back({ error: "메뉴 이름을 입력해 주세요." });
 
   const price = priceRaw === "" ? null : parseInt(priceRaw.replace(/,/g, ""), 10);
-
   const supabase = await createClient();
 
   const { data: last } = await supabase
@@ -67,11 +68,10 @@ export async function addItemAction(formData: FormData) {
     .limit(1)
     .maybeSingle();
 
-  const sort_order = (last?.sort_order ?? -1) + 1;
-
-  const { error } = await supabase
-    .from("menu_items")
-    .insert({ category_id, name, description, price, price_text, sort_order });
+  const { error } = await supabase.from("menu_items").insert({
+    category_id, name, description, price, price_text,
+    sort_order: (last?.sort_order ?? -1) + 1,
+  });
 
   if (error) back({ error: error.message });
   revalidatePath("/menu");
@@ -79,7 +79,7 @@ export async function addItemAction(formData: FormData) {
 }
 
 export async function deleteItemAction(formData: FormData) {
-  const id = String(formData.get("id") ?? "");
+  const id       = String(formData.get("id") ?? "");
   const supabase = await createClient();
   const { error } = await supabase.from("menu_items").delete().eq("id", id);
   if (error) back({ error: error.message });
