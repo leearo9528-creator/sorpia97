@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PhotoSlot } from "./PhotoSlot";
@@ -28,45 +29,43 @@ export function PhotoCarousel({ photos, aspect = "aspect-[16/10]", rounded = "ro
   const next = () => setIdx((i) => (i + 1) % photos.length);
 
   return (
-    <div className={`relative overflow-hidden ${aspect} ${rounded} select-none`}>
-      {/* 슬라이드 트랙 */}
-      <div
-        className="flex h-full transition-transform duration-300 ease-in-out"
-        style={{ transform: `translateX(-${idx * 100}%)`, width: `${photos.length * 100}%` }}
-      >
-        {photos.map((url, i) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={i}
+    <div className={`relative overflow-hidden ${aspect} ${rounded} select-none bg-[var(--surface-2)]`}>
+      {photos.map((url, i) => (
+        <div
+          key={i}
+          className="absolute inset-0 transition-opacity duration-300"
+          style={{ opacity: i === idx ? 1 : 0, pointerEvents: i === idx ? "auto" : "none" }}
+        >
+          <Image
             src={url}
             alt={`사진 ${i + 1}`}
-            className="h-full object-cover"
-            style={{ width: `${100 / photos.length}%` }}
+            fill
+            priority={i === 0}
+            sizes="(max-width: 768px) 100vw, 720px"
+            className="object-cover"
             draggable={false}
           />
-        ))}
-      </div>
+        </div>
+      ))}
 
-      {/* 화살표 (2장 이상일 때만) */}
       {photos.length > 1 && (
         <>
           <button
             onClick={prev}
-            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+            className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors z-10"
             aria-label="이전 사진"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={next}
-            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors"
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/30 text-white flex items-center justify-center hover:bg-black/50 transition-colors z-10"
             aria-label="다음 사진"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          {/* 점 인디케이터 */}
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5">
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {photos.map((_, i) => (
               <button
                 key={i}

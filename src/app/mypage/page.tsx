@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Stamp, Dog, Gift, ChevronRight, Pencil } from "lucide-react";
 
@@ -91,10 +92,15 @@ export default async function MyPage() {
                   <Pencil className="w-3.5 h-3.5" />
                 </Link>
 
-                <div className="aspect-square -mx-2 -mt-2 rounded-2xl overflow-hidden bg-[var(--surface-2)] flex items-center justify-center mb-3">
+                <div className="relative aspect-square -mx-2 -mt-2 rounded-2xl overflow-hidden bg-[var(--surface-2)] flex items-center justify-center mb-3">
                   {d.photo_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={d.photo_url} alt={d.name} className="w-full h-full object-cover" />
+                    <Image
+                      src={d.photo_url}
+                      alt={d.name}
+                      fill
+                      sizes="176px"
+                      className="object-cover"
+                    />
                   ) : (
                     <Dog className="w-10 h-10 text-[var(--foreground-mute)]" />
                   )}

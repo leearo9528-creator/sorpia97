@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Clock, Flame } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
@@ -98,8 +99,9 @@ export default async function MenuPage() {
               <div key={item.id} className="card flex items-center gap-3 !py-3">
                 <span className="text-lg font-bold text-[var(--accent)] w-6 shrink-0">{item.rank}</span>
                 {item.photo_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.photo_url} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                    <Image src={item.photo_url} alt={item.name} fill sizes="48px" className="object-cover" />
+                  </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-[var(--brand-strong)]">{item.name}</div>
@@ -125,8 +127,9 @@ export default async function MenuPage() {
               <div key={item.id} className="card flex items-center gap-3 !py-3">
                 <span className="text-base font-bold text-[var(--accent)] w-6 shrink-0">{item.rank}</span>
                 {item.photo_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={item.photo_url} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                  <div className="relative w-12 h-12 rounded-xl overflow-hidden shrink-0">
+                    <Image src={item.photo_url} alt={item.name} fill sizes="48px" className="object-cover" />
+                  </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-[var(--brand-strong)]">{item.name}</div>

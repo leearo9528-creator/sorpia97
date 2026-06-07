@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { updateDogAction, deleteDogAction } from "./actions";
@@ -93,9 +94,9 @@ export default async function EditDogPage({
           <div>
             <label className="label">사진 (선택)</label>
             {dog.photo_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={dog.photo_url} alt={dog.name}
-                className="w-24 h-24 rounded-2xl object-cover mb-2" />
+              <div className="relative w-24 h-24 rounded-2xl overflow-hidden mb-2">
+                <Image src={dog.photo_url} alt={dog.name} fill sizes="96px" className="object-cover" />
+              </div>
             )}
             <input
               className="input file:mr-3 file:rounded-full file:border-0 file:bg-[var(--brand)] file:text-white file:px-3 file:py-1.5 file:text-xs file:font-semibold cursor-pointer"
