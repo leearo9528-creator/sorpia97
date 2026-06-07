@@ -1,11 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
-import { Pencil, Plus, Trash2, EyeOff, Eye } from "lucide-react";
+import { Eye, EyeOff, Plus, Pencil } from "lucide-react";
 import {
   updateItemPriceAction,
   toggleItemActiveAction,
   addItemAction,
-  deleteItemAction,
 } from "./actions";
+import { DeleteButton } from "./DeleteButton";
 
 export const dynamic = "force-dynamic";
 
@@ -38,14 +38,25 @@ export default async function AdminMenuPage({
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: me } = await supabase.from("profiles").select("role").eq("id", user!.id).maybeSingle();
+  const { data: me } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user!.id)
+    .maybeSingle();
+
   if (me?.role !== "admin") {
-    return <p className="py-10 text-center opacity-60 text-sm">최고 관리자만 이용할 수 있습니다.</p>;
+    return (
+      <p className="py-10 text-center opacity-60 text-sm">
+        최고 관리자만 이용할 수 있습니다.
+      </p>
+    );
   }
 
   const { data } = await supabase
     .from("menu_categories")
-    .select("id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,rank,sort_order,is_active)")
+    .select(
+      "id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,rank,sort_order,is_active)",
+    )
     .order("sort_order")
     .order("sort_order", { referencedTable: "menu_items" });
 
@@ -68,7 +79,7 @@ export default async function AdminMenuPage({
       )}
 
       <p className="text-xs text-[var(--foreground-mute)]">
-        가격은 원 단위 정수 (예: 6500). 비정형 가격(예: 13,000 / 20,000원)은 가격란을 비우고 가격 텍스트에 입력하세요.
+        가격은 원 단위 정수 (예: 6500). 비정형 가격은 가격란 비우고 가격 텍스트에 입력.
       </p>
 
       {categories.map((cat) => (
@@ -85,7 +96,6 @@ export default async function AdminMenuPage({
           </summary>
 
           <div className="mt-3 grid gap-2">
-            {/* 아이템 목록 */}
             {cat.menu_items.map((item) => (
               <div
                 key={item.id}
@@ -105,11 +115,12 @@ export default async function AdminMenuPage({
                       {item.name}
                     </div>
                     {item.description && (
-                      <div className="text-xs text-[var(--foreground-mute)] mt-0.5">{item.description}</div>
+                      <div className="text-xs text-[var(--foreground-mute)] mt-0.5">
+                        {item.description}
+                      </div>
                     )}
                   </div>
 
-                  {/* 가격 편집 인라인 폼 */}
                   <form action={updateItemPriceAction} className="flex items-center gap-1.5 flex-wrap">
                     <input type="hidden" name="id" value={item.id} />
                     <input
@@ -135,7 +146,6 @@ export default async function AdminMenuPage({
                     </button>
                   </form>
 
-                  {/* 활성/비활성 토글 */}
                   <form action={toggleItemActiveAction}>
                     <input type="hidden" name="id" value={item.id} />
                     <input type="hidden" name="is_active" value={String(item.is_active)} />
@@ -150,30 +160,20 @@ export default async function AdminMenuPage({
                     </button>
                   </form>
 
-                  {/* 삭제 */}
-                  <form action={deleteItemAction} onSubmit={(e) => {
-                    // eslint-disable-next-line no-alert
-                    if (!confirm(`'${item.name}'을 삭제하시겠습니까?`)) e.preventDefault();
-                  }}>
-                    <input type="hidden" name="id" value={item.id} />
-                    <button
-                      type="submit"
-                      className="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-red-50 text-red-400 hover:text-red-600"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </form>
+                  <DeleteButton id={item.id} name={item.name} />
                 </div>
               </div>
             ))}
 
-            {/* 새 항목 추가 */}
             <details className="mt-2">
               <summary className="cursor-pointer list-none text-xs text-[var(--brand)] font-semibold flex items-center gap-1 px-1 py-1">
                 <Plus className="w-3.5 h-3.5" />
                 항목 추가
               </summary>
-              <form action={addItemAction} className="mt-2 rounded-2xl border border-dashed border-[var(--ring)] p-3 grid gap-2">
+              <form
+                action={addItemAction}
+                className="mt-2 rounded-2xl border border-dashed border-[var(--ring)] p-3 grid gap-2"
+              >
                 <input type="hidden" name="category_id" value={cat.id} />
                 <input
                   name="name"
