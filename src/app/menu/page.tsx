@@ -9,6 +9,7 @@ type MenuItem = {
   description: string | null;
   price: number | null;
   price_text: string | null;
+  photo_url: string | null;
   rank: number | null;
   sort_order: number;
   is_active: boolean;
@@ -57,7 +58,7 @@ export default async function MenuPage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("menu_categories")
-    .select("id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,rank,sort_order,is_active)")
+    .select("id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,photo_url,rank,sort_order,is_active)")
     .order("sort_order")
     .order("sort_order", { referencedTable: "menu_items" });
 
@@ -94,8 +95,12 @@ export default async function MenuPage() {
           <h2 className="font-bold text-[var(--brand-strong)]">Best</h2>
           <div className="grid gap-2">
             {best.menu_items.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).map((item) => (
-              <div key={item.id} className="card flex items-start gap-3 !py-3">
+              <div key={item.id} className="card flex items-center gap-3 !py-3">
                 <span className="text-lg font-bold text-[var(--accent)] w-6 shrink-0">{item.rank}</span>
+                {item.photo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.photo_url} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-[var(--brand-strong)]">{item.name}</div>
                   {item.description && (
@@ -117,8 +122,12 @@ export default async function MenuPage() {
           <h2 className="font-bold text-[var(--brand-strong)]">Signature</h2>
           <div className="grid gap-2">
             {signature.menu_items.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99)).map((item) => (
-              <div key={item.id} className="card flex items-start gap-3 !py-3">
+              <div key={item.id} className="card flex items-center gap-3 !py-3">
                 <span className="text-base font-bold text-[var(--accent)] w-6 shrink-0">{item.rank}</span>
+                {item.photo_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={item.photo_url} alt={item.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                )}
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-sm text-[var(--brand-strong)]">{item.name}</div>
                   {item.description && (

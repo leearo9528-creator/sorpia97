@@ -3,6 +3,7 @@ import { PhotoSlot } from "@/components/PhotoSlot";
 import { CopyAddress } from "@/components/CopyAddress";
 import { ContactActions } from "@/components/ContactActions";
 import { BRAND } from "@/lib/brand";
+import { createClient } from "@/lib/supabase/server";
 import {
   PawPrint,
   Sparkles,
@@ -10,18 +11,34 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: settings } = await supabase
+    .from("site_settings")
+    .select("key,value")
+    .eq("key", "homepage_main");
+  const mainPhoto = (settings ?? []).find((s: { key: string; value: string }) => s.key === "homepage_main")?.value ?? null;
+
   return (
     <div className="pb-12 space-y-5">
 
       {/* ── 헤더 ─────────────────────────────────────── */}
       <section className="section pt-3 md:pt-6">
-        <PhotoSlot
-          label="사진1"
-          hint="카페 메인 전경"
-          aspect="aspect-[16/10]"
-          rounded="rounded-[24px]"
-        />
+        {mainPhoto ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={mainPhoto}
+            alt="소르피아97"
+            className="w-full aspect-[16/10] rounded-[24px] object-cover"
+          />
+        ) : (
+          <PhotoSlot
+            label="사진1"
+            hint="카페 메인 전경"
+            aspect="aspect-[16/10]"
+            rounded="rounded-[24px]"
+          />
+        )}
         <div className="mt-4">
           <h1 className="text-2xl font-bold text-[var(--brand-strong)] tracking-tight">
             {BRAND.name}

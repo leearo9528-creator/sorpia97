@@ -8,6 +8,7 @@ const ADMIN_TABS = [
   { href: "/admin/menu",         label: "메뉴" },
   { href: "/admin/trekking",     label: "트레킹 예약" },
   { href: "/admin/announcements",label: "공지사항" },
+  { href: "/admin/site",         label: "사이트 사진" },
 ];
 
 const MANAGER_TABS = [

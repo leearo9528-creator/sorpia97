@@ -136,6 +136,35 @@ export async function addItemAction(formData: FormData) {
   back({ message: `'${name}' 추가됐습니다.` });
 }
 
+// ── 메뉴 항목 사진 업로드 ─────────────────────────────────
+export async function updateItemPhotoAction(formData: FormData) {
+  const id   = String(formData.get("id") ?? "");
+  const file = formData.get("photo");
+
+  if (!(file instanceof File) || file.size === 0) back({ error: "파일을 선택해 주세요." });
+
+  const supabase = await createClient();
+  const ext  = (file as File).name.split(".").pop() || "jpg";
+  const path = `menu/${id}.${ext}`;
+
+  const { error: upErr } = await supabase.storage
+    .from("site-photos")
+    .upload(path, file as File, { contentType: (file as File).type, upsert: true });
+
+  if (upErr) back({ error: upErr.message });
+
+  const { data: pub } = supabase.storage.from("site-photos").getPublicUrl(path);
+
+  const { error } = await supabase
+    .from("menu_items")
+    .update({ photo_url: pub.publicUrl })
+    .eq("id", id);
+
+  if (error) back({ error: error.message });
+  revalidatePath("/menu");
+  back({ message: "사진이 저장됐습니다." });
+}
+
 // ── 메뉴 항목 삭제 ────────────────────────────────────────
 export async function deleteItemAction(formData: FormData) {
   const id       = String(formData.get("id") ?? "");

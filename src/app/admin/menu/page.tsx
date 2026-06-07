@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Eye, EyeOff, Plus, Pencil, FolderPlus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, Plus, Pencil, FolderPlus, Trash2, ImageIcon } from "lucide-react";
 import {
   updateItemAction,
   toggleItemActiveAction,
@@ -7,6 +7,7 @@ import {
   addCategoryAction,
   updateCategoryAction,
   deleteCategoryAction,
+  updateItemPhotoAction,
 } from "./actions";
 import { DeleteButton } from "./DeleteButton";
 
@@ -14,7 +15,7 @@ export const dynamic = "force-dynamic";
 
 type MenuItem = {
   id: string; name: string; description: string | null;
-  price: number | null; price_text: string | null;
+  price: number | null; price_text: string | null; photo_url: string | null;
   rank: number | null; sort_order: number; is_active: boolean;
 };
 type MenuCategory = {
@@ -41,7 +42,7 @@ export default async function AdminMenuPage({
 
   const { data } = await supabase
     .from("menu_categories")
-    .select("id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,rank,sort_order,is_active)")
+    .select("id,code,name,sort_order,is_seasonal,menu_items(id,name,description,price,price_text,photo_url,rank,sort_order,is_active)")
     .order("sort_order")
     .order("sort_order", { referencedTable: "menu_items" });
 
@@ -139,50 +140,71 @@ export default async function AdminMenuPage({
               <div
                 key={item.id}
                 className={
-                  "rounded-2xl border p-4 " +
+                  "rounded-2xl border p-4 grid gap-3 " +
                   (item.is_active
                     ? "bg-white border-[var(--line)]"
                     : "bg-[var(--surface-2)] border-[var(--line)] opacity-60")
                 }
               >
-                <form action={updateItemAction} className="grid gap-2">
-                  <input type="hidden" name="id" value={item.id} />
-                  <div className="flex gap-2 flex-wrap">
-                    <input
-                      name="name" required defaultValue={item.name}
-                      placeholder="메뉴 이름"
-                      className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
-                    />
-                    <input
-                      name="description" defaultValue={item.description ?? ""}
-                      placeholder="설명 (선택)"
-                      className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
-                    />
+                <div className="flex gap-3">
+                  {/* 사진 썸네일 */}
+                  <div className="shrink-0 w-16 h-16 rounded-xl overflow-hidden bg-[var(--surface-2)] border border-[var(--line)] flex items-center justify-center">
+                    {item.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={item.photo_url} alt={item.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-[var(--foreground-mute)] opacity-40" strokeWidth={1.5} />
+                    )}
                   </div>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <input
-                      name="price" type="number" min="0" step="100"
-                      defaultValue={item.price ?? ""} placeholder="가격(원)"
-                      className="w-28 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
-                    />
-                    <input
-                      name="price_text" defaultValue={item.price_text ?? ""}
-                      placeholder="가격텍스트"
-                      className="w-40 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
-                    />
-                    <button type="submit" className="rounded-xl bg-[var(--brand)] text-white text-xs px-3 py-1.5 hover:bg-[var(--brand-strong)]">
-                      저장
-                    </button>
-                    <form action={toggleItemActiveAction} className="contents">
-                      <input type="hidden" name="id" value={item.id} />
-                      <input type="hidden" name="is_active" value={String(item.is_active)} />
-                      <button type="submit" title={item.is_active ? "숨기기" : "표시"}
-                        className="inline-flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[var(--surface-2)] text-[var(--foreground-mute)]">
-                        {item.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                  <form action={updateItemAction} className="grid gap-2 flex-1">
+                    <input type="hidden" name="id" value={item.id} />
+                    <div className="flex gap-2 flex-wrap">
+                      <input
+                        name="name" required defaultValue={item.name}
+                        placeholder="메뉴 이름"
+                        className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
+                      />
+                      <input
+                        name="description" defaultValue={item.description ?? ""}
+                        placeholder="설명 (선택)"
+                        className="input !min-h-0 py-1.5 text-sm flex-1 min-w-32"
+                      />
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <input
+                        name="price" type="number" min="0" step="100"
+                        defaultValue={item.price ?? ""} placeholder="가격(원)"
+                        className="w-28 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
+                      />
+                      <input
+                        name="price_text" defaultValue={item.price_text ?? ""}
+                        placeholder="가격텍스트"
+                        className="w-40 rounded-xl border border-[var(--ring)] bg-[var(--surface)] px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand)]/40"
+                      />
+                      <button type="submit" className="rounded-xl bg-[var(--brand)] text-white text-xs px-3 py-1.5 hover:bg-[var(--brand-strong)]">
+                        저장
                       </button>
-                    </form>
-                    <DeleteButton id={item.id} name={item.name} />
-                  </div>
+                      <form action={toggleItemActiveAction} className="contents">
+                        <input type="hidden" name="id" value={item.id} />
+                        <input type="hidden" name="is_active" value={String(item.is_active)} />
+                        <button type="submit" title={item.is_active ? "숨기기" : "표시"}
+                          className="inline-flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[var(--surface-2)] text-[var(--foreground-mute)]">
+                          {item.is_active ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                        </button>
+                      </form>
+                      <DeleteButton id={item.id} name={item.name} />
+                    </div>
+                  </form>
+                </div>
+                {/* 사진 업로드 */}
+                <form action={updateItemPhotoAction} encType="multipart/form-data"
+                  className="flex items-center gap-2 border-t border-[var(--line)]/60 pt-2">
+                  <input type="hidden" name="id" value={item.id} />
+                  <input type="file" name="photo" accept="image/*" required
+                    className="input !min-h-0 py-1 text-xs flex-1 file:mr-2 file:rounded-full file:border-0 file:bg-[var(--brand-soft)] file:text-[var(--brand-strong)] file:px-2 file:py-0.5 file:text-xs cursor-pointer" />
+                  <button type="submit" className="btn-outline btn-sm shrink-0 text-xs">
+                    {item.photo_url ? "사진 교체" : "사진 추가"}
+                  </button>
                 </form>
               </div>
             ))}
